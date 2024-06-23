@@ -41,6 +41,11 @@ class AddEjerFragment : Fragment() {
 
         binding.btnAsignar.setOnClickListener {
             Toast.makeText(requireContext(), "Pulso el boton asignar", Toast.LENGTH_SHORT).show()
+            binding.imgCargar.isEnabled = true
+            binding.edtNombreEjercicio.isEnabled = true
+            binding.edtimeDuracionEjercicio.isEnabled = true
+            binding.edtimeDuracionDescanso.isEnabled = true
+            binding.btnGuardarEjercicio.isEnabled = true
         }
     }
 
