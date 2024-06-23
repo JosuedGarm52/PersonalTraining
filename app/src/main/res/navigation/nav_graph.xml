@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/ListRecyclerFragment">
+
+    <fragment
+        android:id="@+id/ListRecyclerFragment"
+        android:name="com.example.personaltraining.UI.ListRecyclerFragment"
+        android:label="@string/first_fragment_label"
+        tools:layout="@layout/list_recycler_fragment">
+        <action
+            android:id="@+id/action_ListRecyclerFragment_to_AddEjerFragment"
+            app:destination="@id/AddEjerFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/AddEjerFragment"
+        android:name="com.example.personaltraining.UI.AddEjerFragment"
+        android:label="@string/second_fragment_label"
+        tools:layout="@layout/add_ejer_fragment">
+
+
+        <action
+            android:id="@+id/action_AddEjerFragment_to_ListRecyclerFragment"
+            app:destination="@id/ListRecyclerFragment" />
+    </fragment>
+</navigation>

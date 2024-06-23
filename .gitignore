@@ -1,0 +1,56 @@
+# Directorios de construcción de Android
+/build/
+/app/build/
+/**/build/
+
+# Archivos de configuración de Android Studio
+/.idea
+/.gradle
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+/.idea/modules.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+
+# Archivos de configuración específicos del sistema operativo
+*.iml
+.gradle
+/captures
+.externalNativeBuild
+/.cxx
+
+# Archivos de configuración de usuario de Android Studio
+.idea/
+.idea/caches
+.idea/libraries
+.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+.idea/gradle.xml
+.idea/encodings.xml
+
+# Archivos de configuración específicos de Android Studio
+/.idea/gradle.xml
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+
+# Archivos de configuración específicos de Mac
+.DS_Store
+
+# Archivos generados por compiladores
+/build
+/captures
+
+# Archivos de configuración específicos de Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Archivos de configuración específicos de Linux
+*~
