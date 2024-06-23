@@ -1,5 +1,6 @@
 package com.example.personaltraining.UI
 
+import android.app.ActivityOptions
 import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageView
@@ -20,13 +21,16 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        val iv_img = findViewById<ImageView>(R.id.iv_img)
-        iv_img.alpha = 0f
-        iv_img.animate().setDuration(1500).alpha(1f).withEndAction{
-            val i = Intent(this, EjercicioActivity::class.java)
-            startActivity(i)
-            overridePendingTransition(android.R.anim.fade_in,android.R.anim.fade_out)
-
+        val img = findViewById<ImageView>(R.id.iv_img)
+        img.alpha = 0f
+        img.animate().setDuration(1500).alpha(1f).withEndAction {
+            val intent = Intent(this, EjercicioActivity::class.java)
+            val options = ActivityOptions.makeCustomAnimation(
+                this,
+                android.R.anim.fade_in,
+                android.R.anim.fade_out
+            )
+            startActivity(intent, options.toBundle())
         }
     }
 }
