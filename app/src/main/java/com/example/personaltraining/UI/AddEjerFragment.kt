@@ -7,8 +7,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.personaltraining.R
+import com.example.personaltraining.adapter.EjercicioAdapterVistaPrevia
 import com.example.personaltraining.databinding.AddEjerFragmentBinding
+import com.example.personaltraining.model.Ejercicio
 
 /**
  * A simple [Fragment] subclass as the second destination in the navigation.
@@ -21,12 +24,24 @@ class AddEjerFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
 
         _binding = AddEjerFragmentBinding.inflate(inflater, container, false)
+
+        val ejercicioList = listOf(
+            Ejercicio(1, "Push-up", "30s", "15s"),
+            Ejercicio(2, "Sit-up", "45s", "20s"),
+            Ejercicio(3, "Plank", "60s", "30s")
+        )
+
+        val adapter = EjercicioAdapterVistaPrevia(ejercicioList)
+        binding.recyclerListaEjercicios.layoutManager = LinearLayoutManager(requireContext())
+        binding.recyclerListaEjercicios.adapter = adapter
+
         return binding.root
 
     }
@@ -47,6 +62,8 @@ class AddEjerFragment : Fragment() {
             binding.edtimeDuracionDescanso.isEnabled = true
             binding.btnGuardarEjercicio.isEnabled = true
         }
+
+
     }
 
     override fun onDestroyView() {
