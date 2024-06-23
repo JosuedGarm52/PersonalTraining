@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import com.example.personaltraining.R
 import com.example.personaltraining.databinding.AddEjerFragmentBinding
@@ -38,7 +39,9 @@ class AddEjerFragment : Fragment() {
             findNavController().navigate(R.id.action_AddEjerFragment_to_ListRecyclerFragment)
         }*/
 
-
+        binding.btnAsignar.setOnClickListener {
+            Toast.makeText(requireContext(), "Pulso el boton asignar", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onDestroyView() {

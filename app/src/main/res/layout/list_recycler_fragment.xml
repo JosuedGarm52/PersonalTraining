@@ -13,8 +13,8 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
-            android:layout_width="343dp"
-            android:layout_height="608dp"
+            android:layout_width="372dp"
+            android:layout_height="523dp"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
             android:visibility="visible"
