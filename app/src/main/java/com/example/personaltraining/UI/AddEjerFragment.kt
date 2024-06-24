@@ -37,13 +37,7 @@ class AddEjerFragment : Fragment() {
 
         _binding = AddEjerFragmentBinding.inflate(inflater, container, false)
 
-        val ejercicioList = listOf(
-            Ejercicio(1, "Push-up", "30s", "15s"),
-            Ejercicio(2, "Sit-up", "45s", "20s"),
-            Ejercicio(3, "Plank", "60s", "30s")
-        )
-
-        val adapter = EjercicioAdapterVistaPrevia(ejercicioList)
+        val adapter = EjercicioAdapterVistaPrevia()
         binding.recyclerListaEjercicios.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerListaEjercicios.adapter = adapter
 
@@ -72,14 +66,22 @@ class AddEjerFragment : Fragment() {
         addTimeTextWatcher(binding.edtimeDuracionEjercicio)
         addTimeTextWatcher(binding.edtimeDuracionDescanso)
 
+        val ejercicioList = mutableListOf<Ejercicio>()
+
         binding.btnGuardarEjercicio.setOnClickListener {
-            if(binding.edtimeDuracionEjercicio.text != null
-                && binding.edtNombreEjercicio.text != null
-                && binding.edtimeDuracionDescanso.text != null
-                && negacion){
+            if (binding.edtNombreEjercicio.text.isNotEmpty() &&
+                binding.edtimeDuracionEjercicio.text.isNotEmpty() &&
+                binding.edtimeDuracionDescanso.text.isNotEmpty() &&
+                !negacion) {
                 val DurEjercicio = binding.edtimeDuracionEjercicio.text.toString()
                 val strDE = darFormato(DurEjercicio)
                 val strDD = darFormato(binding.edtimeDuracionDescanso.text.toString())
+                val nombre = binding.edtNombreEjercicio.text.toString()
+
+                val ejercicio = Ejercicio(ejercicioList.size + 1, nombre, strDE, strDD)
+
+                ejercicioList.add(ejercicio)
+                (binding.recyclerListaEjercicios.adapter as EjercicioAdapterVistaPrevia).submitList(ejercicioList.toList())
             }else{
                 Toast.makeText(requireContext(), "Debes llenar todos los campos para introducir un ejercicio", Toast.LENGTH_SHORT).show()
             }
