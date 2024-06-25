@@ -111,10 +111,9 @@
             android:id="@+id/recyclerListaEjercicios"
             android:layout_width="309dp"
             android:layout_height="211dp"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="88dp"
             android:enabled="false"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/btnAsignar" />
 
@@ -154,5 +153,18 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/btnGuardarEjercicio" />
+
+        <Button
+            android:id="@+id/btnConfRutina"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="21dp"
+            android:text="Confirmar rutina"
+            android:background="@drawable/button_background_enabled"
+            android:enabled="false"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnAsignar" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

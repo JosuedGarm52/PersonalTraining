@@ -9,12 +9,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.personaltraining.R
 import com.example.personaltraining.adapter.EjercicioAdapterVistaPrevia
+import com.example.personaltraining.application.RutinasApplication
 import com.example.personaltraining.databinding.AddEjerFragmentBinding
 import com.example.personaltraining.model.Ejercicio
+import com.example.personaltraining.model.Rutina
+import com.example.personaltraining.viewModel.AddEjerFragmentViewModel
+import com.example.personaltraining.viewModel.AddEjerFragmentViewModelFactory
+import kotlinx.coroutines.launch
 
 /**
  * A simple [Fragment] subclass as the second destination in the navigation.
@@ -22,6 +30,13 @@ import com.example.personaltraining.model.Ejercicio
 class AddEjerFragment : Fragment() {
 
     private var negacion = false
+    private var rutina = Rutina(nombre = "")
+
+    val viewModel: AddEjerFragmentViewModel by viewModels {
+        AddEjerFragmentViewModelFactory((requireActivity().application as RutinasApplication).repository)
+    }
+
+    val ejercicioList = mutableListOf<Ejercicio>()
 
     private var _binding:AddEjerFragmentBinding? = null
 
@@ -54,32 +69,62 @@ class AddEjerFragment : Fragment() {
         }*/
 
         binding.btnAsignar.setOnClickListener {
-            //Toast.makeText(requireContext(), "Pulso el boton asignar", Toast.LENGTH_SHORT).show()
-            binding.imgCargar.isEnabled = true
-            binding.edtNombreEjercicio.isEnabled = true
-            binding.edtimeDuracionEjercicio.isEnabled = true
-            binding.edtimeDuracionDescanso.isEnabled = true
-            binding.btnGuardarEjercicio.isEnabled = true
+            if(binding.edtNombreRutina.text.toString().isNotEmpty()){
+                binding.imgCargar.isEnabled = true
+                binding.edtNombreEjercicio.isEnabled = true
+                binding.edtimeDuracionEjercicio.isEnabled = true
+                binding.edtimeDuracionDescanso.isEnabled = true
+                binding.btnGuardarEjercicio.isEnabled = true
+                binding.btnConfRutina.isEnabled  = true
+                binding.btnAsignar.isEnabled = false
+                rutina = Rutina(nombre = binding.edtNombreRutina.text.toString())
+                //viewModel.insertRutina(rutina)
+                // Insertar la rutina en la base de datos y obtener el ID
+                viewModel.viewModelScope.launch {
+                    val rutinaId = viewModel.insertRutinaAndGetId(rutina)
+                    rutina = rutina.copy(ID = rutinaId.toInt()) // Convertir Long a Int si es necesario
+                }
+            }else{
+                Toast.makeText(requireContext(), "Pulso el boton asignar", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        binding.btnConfRutina.setOnClickListener {
+            if (ejercicioList.isNotEmpty()) {
+                viewModel.insertRutina(rutina)
+                // Guardar los ejercicios en la base de datos
+                viewModel.viewModelScope.launch {
+                    viewModel.insertarAllEjercicios(ejercicioList)
+                }
+                Toast.makeText(requireContext(), "Rutina guardada", Toast.LENGTH_SHORT).show()
+                // Aquí podrías navegar a otra pantalla o hacer alguna otra acción después de guardar la rutina
+                findNavController().navigate(R.id.action_AddEjerFragment_to_ListRecyclerFragment)
+            } else {
+                Toast.makeText(requireContext(), "Debes agregar al menos un ejercicio a la rutina", Toast.LENGTH_SHORT).show()
+            }
         }
 
         // Agregar TextWatcher a los EditText
         addTimeTextWatcher(binding.edtimeDuracionEjercicio)
         addTimeTextWatcher(binding.edtimeDuracionDescanso)
 
-        val ejercicioList = mutableListOf<Ejercicio>()
 
         binding.btnGuardarEjercicio.setOnClickListener {
             if (binding.edtNombreEjercicio.text.isNotEmpty() &&
                 binding.edtimeDuracionEjercicio.text.isNotEmpty() &&
                 binding.edtimeDuracionDescanso.text.isNotEmpty() &&
                 !negacion) {
-                val DurEjercicio = binding.edtimeDuracionEjercicio.text.toString()
-                val strDE = darFormato(DurEjercicio)
-                val strDD = darFormato(binding.edtimeDuracionDescanso.text.toString())
-                val nombre = binding.edtNombreEjercicio.text.toString()
+                val nombreEjercicio = binding.edtNombreEjercicio.text.toString()
+                val duracionEjercicio = darFormato(binding.edtimeDuracionEjercicio.text.toString())
+                val duracionDescanso = darFormato(binding.edtimeDuracionDescanso.text.toString())
 
-                val ejercicio = Ejercicio(ejercicioList.size + 1, nombre, strDE, strDD)
-
+                val ejercicio = Ejercicio(
+                    ID = 0,
+                    Nombre = nombreEjercicio,
+                    DEjercicio = duracionEjercicio,
+                    DDescanso = duracionDescanso,
+                    rutinaId = rutina!!.ID
+                )
                 ejercicioList.add(ejercicio)
                 (binding.recyclerListaEjercicios.adapter as EjercicioAdapterVistaPrevia).submitList(ejercicioList.toList())
             }else{
