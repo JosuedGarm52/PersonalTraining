@@ -123,7 +123,7 @@ class AddEjerFragment : Fragment() {
                     Nombre = nombreEjercicio,
                     DEjercicio = duracionEjercicio,
                     DDescanso = duracionDescanso,
-                    rutinaId = rutina!!.ID
+                    rutinaId = rutina.ID
                 )
                 ejercicioList.add(ejercicio)
                 (binding.recyclerListaEjercicios.adapter as EjercicioAdapterVistaPrevia).submitList(ejercicioList.toList())
