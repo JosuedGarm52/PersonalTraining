@@ -1,6 +1,7 @@
 package com.example.personaltraining.repository
 
 import androidx.annotation.WorkerThread
+import androidx.room.Transaction
 import com.example.personaltraining.model.Ejercicio
 import com.example.personaltraining.model.EjercicioDao
 import com.example.personaltraining.model.Rutina
@@ -37,5 +38,12 @@ class RutinasRepository (
     @WorkerThread
     suspend fun insertEjercicios(ejercicios: List<Ejercicio>) {
         ejercicioDao.insertAll(ejercicios)
+    }
+
+    @WorkerThread
+    @Transaction
+    suspend fun deleteRutinaWithExercises(rutinaId: Int) {
+        ejercicioDao.deleteEjerciciosByRutinaId(rutinaId)
+        rutinaDao.deleteRutinaById(rutinaId)
     }
 }

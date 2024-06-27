@@ -56,22 +56,23 @@ class ListRecyclerFragment : Fragment() {
         binding.btnAddRutina.setOnClickListener{
             findNavController().navigate(R.id.action_ListRecyclerFragment_to_AddEjerFragment)
         }
-        val adapter = RutinasAdapter { rutina ->
-            onItemClick(rutina)
-        }
+        val adapter = RutinasAdapter(
+            clickt = { rutina -> onItemClick(rutina) },
+            deletet = { rutina -> onItemDelete(rutina) },
+            editt = { rutina -> onItemEdit(rutina) }
+        )
 
         binding.recyclerView.adapter = adapter
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        try{
-            listRecyclerFragmentViewModel.rutinasKardex.observe(viewLifecycleOwner,
-                Observer { rutinas ->
-                    rutinas?.let {
-                        adapter.submitList(it)
-                    }
-                })
-        }catch(e: Exception){
-            Log.e("FirstFragment", "Error al observar rutinasKardex: ${e.message}", e)
+        try {
+            listRecyclerFragmentViewModel.rutinasKardex.observe(viewLifecycleOwner, Observer { rutinas ->
+                rutinas?.let {
+                    adapter.submitList(it)
+                }
+            })
+        } catch (e: Exception) {
+            Log.e("ListRecyclerFragment", "Error al observar rutinasKardex: ${e.message}", e)
         }
 
     }
@@ -82,6 +83,19 @@ class ListRecyclerFragment : Fragment() {
 
         //val action = ListRecyclerFragmentDirections.actionFirstFragmentToSecondFragment(it.ID)
         //findNavController().navigate(action)
+    }
+
+    private fun onItemDelete(rutina: Rutina) {
+        Log.d("ListRecyclerFragment", "onItem delete")
+        Toast.makeText(requireContext(), "Eliminar ${rutina.nombre}", Toast.LENGTH_SHORT).show()
+
+        listRecyclerFragmentViewModel.deleteRutina(rutina.ID)
+    }
+
+    private fun onItemEdit(rutina: Rutina) {
+        Log.d("ListRecyclerFragment", "onItem edit")
+        Toast.makeText(requireContext(), "Editar ${rutina.nombre}", Toast.LENGTH_SHORT).show()
+        // Implementa lógica para editar la rutina
     }
 
     override fun onDestroyView() {

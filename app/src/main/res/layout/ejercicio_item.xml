@@ -42,5 +42,21 @@
         app:layout_constraintStart_toEndOf="@+id/imageView"
         app:layout_constraintTop_toBottomOf="@+id/tvTitulo" />
 
+    <ImageView
+        android:id="@+id/icChevRight"
+        android:layout_width="68dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="94dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="26dp"
+        android:layout_marginBottom="16dp"
+        android:paddingHorizontal="15dp"
+        android:src="@drawable/ic_left_arrow"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/tvDuracionEjer"
+        app:layout_constraintTop_toBottomOf="@+id/tvTitulo"
+        tools:ignore="UseAppTint" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -24,6 +24,12 @@ class ListRecyclerFragmentViewModel( private val rutinasRepository: RutinasRepos
             }
         }
     }
+
+    fun deleteRutina(rutinaId: Int) {
+        viewModelScope.launch {
+            rutinasRepository.deleteRutinaWithExercises(rutinaId)
+        }
+    }
 }
 
 class ListRecyclerFragmentViewModelFactory(private val rutinasRepository: RutinasRepository) : ViewModelProvider.Factory {

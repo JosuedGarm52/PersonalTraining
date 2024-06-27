@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
+
 @Dao
 interface EjercicioDao {
     @Query("SELECT * FROM Ejercicio WHERE rutinaId = :rutinaId")
@@ -16,4 +17,7 @@ interface EjercicioDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(ejercicios: List<Ejercicio>)
+
+    @Query("DELETE FROM Ejercicio WHERE rutinaId = :rutinaId")
+    suspend fun deleteEjerciciosByRutinaId(rutinaId: Int)
 }

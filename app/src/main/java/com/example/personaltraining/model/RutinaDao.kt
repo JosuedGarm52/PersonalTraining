@@ -16,4 +16,8 @@ interface RutinaDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(rutina: Rutina): Long
+
+    @Query("DELETE FROM Rutina WHERE ID = :id")
+    suspend fun deleteRutinaById(id: Int)
+
 }
