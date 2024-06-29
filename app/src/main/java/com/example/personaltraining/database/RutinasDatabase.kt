@@ -9,7 +9,7 @@ import com.example.personaltraining.model.EjercicioDao
 import com.example.personaltraining.model.Rutina
 import com.example.personaltraining.model.RutinaDao
 
-@Database(entities = [Ejercicio::class,Rutina::class], version = 1)
+@Database(entities = [Ejercicio::class,Rutina::class], version = 2)
 abstract class RutinasDatabase : RoomDatabase() {
     abstract fun ejercicioDAO(): EjercicioDao
     abstract fun rutinaDAO(): RutinaDao

@@ -56,6 +56,10 @@ class AddEjerFragment : Fragment() {
         binding.recyclerListaEjercicios.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerListaEjercicios.adapter = adapter
 
+        binding.chkDurTiempo.isChecked = true
+        binding.chkRepeticion.isEnabled = false
+        binding.chkDurTiempo.isEnabled = false
+
         return binding.root
 
     }
@@ -74,6 +78,10 @@ class AddEjerFragment : Fragment() {
                 binding.edtNombreEjercicio.isEnabled = true
                 binding.edtimeDuracionEjercicio.isEnabled = true
                 binding.edtimeDuracionDescanso.isEnabled = true
+
+                binding.chkRepeticion.isEnabled = true
+                binding.chkDurTiempo.isEnabled = true
+
                 binding.btnGuardarEjercicio.isEnabled = true
                 binding.btnConfRutina.isEnabled  = true
                 binding.btnAsignar.isEnabled = false
@@ -87,6 +95,15 @@ class AddEjerFragment : Fragment() {
             }else{
                 Toast.makeText(requireContext(), "Pulso el boton asignar", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        binding.chkRepeticion.setOnClickListener {
+            val isChecked = binding.chkRepeticion.isChecked
+            binding.chkDurTiempo.isChecked = !isChecked
+            binding.edtimeDuracionEjercicio.hint = if (isChecked) "Estimacion del ejercicio" else "Duracion del ejercicio"
+        }
+        binding.chkDurTiempo.setOnClickListener {
+            binding.chkRepeticion.isChecked = !binding.chkDurTiempo.isChecked
         }
 
         binding.btnConfRutina.setOnClickListener {
@@ -117,12 +134,15 @@ class AddEjerFragment : Fragment() {
                 val nombreEjercicio = binding.edtNombreEjercicio.text.toString()
                 val duracionEjercicio = darFormato(binding.edtimeDuracionEjercicio.text.toString())
                 val duracionDescanso = darFormato(binding.edtimeDuracionDescanso.text.toString())
-
+                val tipo = binding.chkRepeticion.isChecked
+                val objetivo = binding.edtCantRep.text?.toString()
                 val ejercicio = Ejercicio(
                     ID = 0,
                     Nombre = nombreEjercicio,
                     DEjercicio = duracionEjercicio,
                     DDescanso = duracionDescanso,
+                    objetivo,
+                    tipo,
                     rutinaId = rutina.ID
                 )
                 ejercicioList.add(ejercicio)

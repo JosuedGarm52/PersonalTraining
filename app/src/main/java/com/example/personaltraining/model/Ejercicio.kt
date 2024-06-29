@@ -21,5 +21,7 @@ data class Ejercicio (
     val Nombre : String,
     val DEjercicio : String,
     val DDescanso : String,
+    val Objetivo: String?,
+    val isObjetivo: Boolean = false,
     val rutinaId: Int
 )

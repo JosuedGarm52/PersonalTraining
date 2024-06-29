@@ -19,7 +19,12 @@ class RutinasAdapter(
     private val editt: (Rutina) -> Unit) :
     ListAdapter<Rutina, RutinasAdapter.ViewHolder>(RutinaComparator()) {
 
-    class ViewHolder(item: View, val clickt: (Rutina) -> Unit, val deletet: (Rutina) -> Unit, val editt: (Rutina) -> Unit) : RecyclerView.ViewHolder(item) {
+    class ViewHolder(
+        item: View,
+        val clickt: (Rutina) -> Unit,
+        val deletet: (Rutina) -> Unit,
+        val editt: (Rutina) -> Unit)
+        : RecyclerView.ViewHolder(item) {
         val swipeRevealLayout: SwipeRevealLayout = item.findViewById(R.id.swipeRevealLayout)
         val tvTitulo: TextView = item.findViewById(R.id.tvTitulo)
         val tvDuracionEjer: TextView = item.findViewById(R.id.tvDuracionEjer)
