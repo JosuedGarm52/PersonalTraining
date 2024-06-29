@@ -1,14 +1,17 @@
 package com.example.personaltraining.UI
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -71,6 +74,30 @@ class AddEjerFragment : Fragment() {
         binding.buttonSecond.setOnClickListener {
             findNavController().navigate(R.id.action_AddEjerFragment_to_ListRecyclerFragment)
         }*/
+        //menu que pregunta si quiere salir de la pantalla actual
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            if(rutina.nombre != ""){
+                // Mostrar diálogo de confirmación
+                AlertDialog.Builder(requireContext())
+                    .setMessage("¿Estás seguro de que deseas salir?, Se borrara tu progreso.")
+                    .setPositiveButton("Sí") { _, _ ->
+                        // Permitir el regreso
+                        Log.d("AddEjerFragment", "rutina no null")
+                        viewModel.viewModelScope.launch {
+                            viewModel.deleteRutina(rutina.ID)
+                            isEnabled = false
+                            requireActivity().onBackPressedDispatcher.onBackPressed()
+                        }
+                    }
+                    .setNegativeButton("No", null)
+                    .show()
+            }else{
+                Log.d("AddEjerFragment", "rutina null")
+
+                isEnabled = false
+                requireActivity().onBackPressed()
+            }
+        }
 
         binding.btnAsignar.setOnClickListener {
             if(binding.edtNombreRutina.text.toString().isNotEmpty()){
@@ -85,6 +112,7 @@ class AddEjerFragment : Fragment() {
                 binding.btnGuardarEjercicio.isEnabled = true
                 binding.btnConfRutina.isEnabled  = true
                 binding.btnAsignar.isEnabled = false
+
                 rutina = Rutina(nombre = binding.edtNombreRutina.text.toString())
                 //viewModel.insertRutina(rutina)
                 // Insertar la rutina en la base de datos y obtener el ID

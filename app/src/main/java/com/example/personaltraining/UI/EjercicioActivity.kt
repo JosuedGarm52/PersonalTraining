@@ -1,8 +1,12 @@
 package com.example.personaltraining.UI
 
+import android.app.AlertDialog
 import android.os.Bundle
+import android.window.OnBackInvokedDispatcher
+import androidx.activity.OnBackPressedCallback
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.BuildCompat
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
@@ -26,7 +30,6 @@ class EjercicioActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_ejercicio)
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
-
 
     }
 

@@ -4,12 +4,14 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.personaltraining.model.Ejercicio
 import com.example.personaltraining.model.EjercicioDao
 import com.example.personaltraining.model.Rutina
 import com.example.personaltraining.model.RutinaDao
 
-@Database(entities = [Ejercicio::class,Rutina::class], version = 2)
+@Database(entities = [Ejercicio::class,Rutina::class], version = 3)
 abstract class RutinasDatabase : RoomDatabase() {
     abstract fun ejercicioDAO(): EjercicioDao
     abstract fun rutinaDAO(): RutinaDao
@@ -28,10 +30,29 @@ abstract class RutinasDatabase : RoomDatabase() {
                     context.applicationContext,
                     RutinasDatabase::class.java,
                     "Rutinas_database"
-                ).build()
+                )
+                    //.addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                    .fallbackToDestructiveMigration()//quitar cuando se pase a produccion
+                    .build()
                 INSTANCE = instance
                 instance
             }
         }
+        val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Agregar una nueva columna 'Objetivo' con un valor predeterminado
+                database.execSQL("ALTER TABLE Ejercicio ADD COLUMN Objetivo TEXT DEFAULT ''")
+
+                // Agregar una nueva columna 'isObjetivo' con un valor predeterminado
+                database.execSQL("ALTER TABLE Ejercicio ADD COLUMN isObjetivo INTEGER DEFAULT 0")
+            }
+        }
+        //bruh
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // No se hace nada, migración vacía
+            }
+        }
+
     }
 }

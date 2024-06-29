@@ -40,6 +40,11 @@ class RutinasRepository (
         ejercicioDao.insertAll(ejercicios)
     }
 
+    @Transaction
+    suspend fun deleteRutina(rutinaId: Int) {
+        rutinaDao.deleteRutinaById(rutinaId)
+    }
+
     @WorkerThread
     @Transaction
     suspend fun deleteRutinaWithExercises(rutinaId: Int) {

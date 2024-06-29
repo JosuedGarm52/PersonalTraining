@@ -19,6 +19,9 @@ class AddEjerFragmentViewModel(private val rutinasRepository: RutinasRepository)
     suspend fun insertarAllEjercicios(listEjercicio : List<Ejercicio>){
         rutinasRepository.insertEjercicios(listEjercicio)
     }
+    suspend fun deleteRutina(rutinaId: Int) {
+        rutinasRepository.deleteRutina(rutinaId)
+    }
 }
 
 class AddEjerFragmentViewModelFactory(private val rutinasRepository: RutinasRepository) : ViewModelProvider.Factory {
