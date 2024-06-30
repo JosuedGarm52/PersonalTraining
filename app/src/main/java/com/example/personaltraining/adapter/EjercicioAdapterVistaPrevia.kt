@@ -11,7 +11,9 @@ import com.example.personaltraining.R
 import com.example.personaltraining.model.Ejercicio
 import com.example.personaltraining.databinding.EjercicioItemVistapreviaBinding
 
-class EjercicioAdapterVistaPrevia : ListAdapter<Ejercicio, EjercicioAdapterVistaPrevia.EjercicioViewHolder>(EjercicioDiffCallback()) {
+class EjercicioAdapterVistaPrevia (
+        private val onItemClicked: (Ejercicio) -> Unit
+    ): ListAdapter<Ejercicio, EjercicioAdapterVistaPrevia.EjercicioViewHolder>(EjercicioDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EjercicioViewHolder {
         val binding = EjercicioItemVistapreviaBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -26,8 +28,19 @@ class EjercicioAdapterVistaPrevia : ListAdapter<Ejercicio, EjercicioAdapterVista
     inner class EjercicioViewHolder(private val binding: EjercicioItemVistapreviaBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(ejercicio: Ejercicio) {
             binding.tvNombre.text = ejercicio.Nombre
-            binding.tvDEjercicio.text = ejercicio.DEjercicio
-            binding.tvDDescanso.text = ejercicio.DDescanso
+            binding.tvDEjercicio.text = "Ejercicio: "+ejercicio.DEjercicio
+            binding.tvDDescanso.text = "Descanso: "+ejercicio.DDescanso
+            if (ejercicio.isObjetivo){
+                binding.tvObjetivo.visibility = View.VISIBLE
+                binding.tvObjetivo.text = "Objetivo: "+ ejercicio.Objetivo
+            }else{
+                binding.tvObjetivo.visibility = View.GONE
+            }
+
+            // Detectar clic en el elemento
+            binding.root.setOnClickListener {
+                onItemClicked(ejercicio)
+            }
         }
     }
 

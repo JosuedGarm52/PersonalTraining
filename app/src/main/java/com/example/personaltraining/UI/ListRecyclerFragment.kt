@@ -59,7 +59,7 @@ class ListRecyclerFragment : Fragment() {
             override fun handleOnBackPressed() {
                 // Diálogo de confirmación específico para el primer fragmento
                 AlertDialog.Builder(requireContext())
-                    .setMessage("¿Estás seguro de que deseas salir de este fragmento?")
+                    .setMessage("¿Estás seguro de que deseas salir de la aplicacion?")
                     .setPositiveButton("Sí") { _, _ ->
                         isEnabled = false
                         requireActivity().finishAffinity()

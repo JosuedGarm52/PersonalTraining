@@ -56,7 +56,9 @@ class AddEjerFragment : Fragment() {
 
         _binding = AddEjerFragmentBinding.inflate(inflater, container, false)
 
-        val adapter = EjercicioAdapterVistaPrevia()
+        val adapter = EjercicioAdapterVistaPrevia { ejercicio ->
+            mostrarMenuOpciones(ejercicio)
+        }
         binding.recyclerListaEjercicios.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerListaEjercicios.adapter = adapter
 
@@ -249,7 +251,42 @@ class AddEjerFragment : Fragment() {
         })
     }
 
+    private fun mostrarMenuOpciones(ejercicio: Ejercicio) {
+        val opciones = arrayOf("Copiar", "Duplicar", "Eliminar", "Cancelar")
+        AlertDialog.Builder(requireContext())
+            .setTitle("Seleccione una opción")
+            .setItems(opciones) { _, which ->
+                when (which) {
+                    0 -> copiarEjercicio(ejercicio)
+                    1 -> duplicarEjercicio(ejercicio)
+                    2 -> eliminarEjercicio(ejercicio)
+                    3 -> {} // Cancelar
+                }
+            }
+            .show()
+    }
 
+    private fun copiarEjercicio(ejercicio: Ejercicio) {
+        binding.edtNombreEjercicio.setText(ejercicio.Nombre)
+        binding.edtimeDuracionEjercicio.setText(ejercicio.DEjercicio)
+        binding.edtimeDuracionDescanso.setText(ejercicio.DDescanso)
+        binding.chkRepeticion.isChecked = ejercicio.isObjetivo
+        binding.chkDurTiempo.isChecked = !ejercicio.isObjetivo
+        binding.edtCantRep.setText(if (ejercicio.isObjetivo) ejercicio.Objetivo else "")
+    }
+
+    private fun duplicarEjercicio(ejercicio: Ejercicio) {
+        ejercicioList.add(ejercicio)
+        (binding.recyclerListaEjercicios.adapter as EjercicioAdapterVistaPrevia).submitList(ejercicioList.toList())
+        Toast.makeText(requireContext(), "Ejercicio agregado", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun eliminarEjercicio(ejercicio: Ejercicio) {
+        viewModel.viewModelScope.launch {
+            ejercicioList.remove(ejercicio)
+            (binding.recyclerListaEjercicios.adapter as EjercicioAdapterVistaPrevia).submitList(ejercicioList.toList())
+        }
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()
