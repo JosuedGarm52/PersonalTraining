@@ -95,7 +95,7 @@ class AddEjerFragment : Fragment() {
                 Log.d("AddEjerFragment", "rutina null")
 
                 isEnabled = false
-                requireActivity().onBackPressed()
+                requireActivity().onBackPressedDispatcher.onBackPressed()
             }
         }
 
@@ -108,6 +108,7 @@ class AddEjerFragment : Fragment() {
 
                 binding.chkRepeticion.isEnabled = true
                 binding.chkDurTiempo.isEnabled = true
+                binding.edtCantRep.isEnabled = false
 
                 binding.btnGuardarEjercicio.isEnabled = true
                 binding.btnConfRutina.isEnabled  = true
@@ -128,10 +129,12 @@ class AddEjerFragment : Fragment() {
         binding.chkRepeticion.setOnClickListener {
             val isChecked = binding.chkRepeticion.isChecked
             binding.chkDurTiempo.isChecked = !isChecked
+            binding.edtCantRep.isEnabled = isChecked
             binding.edtimeDuracionEjercicio.hint = if (isChecked) "Estimacion del ejercicio" else "Duracion del ejercicio"
         }
         binding.chkDurTiempo.setOnClickListener {
             binding.chkRepeticion.isChecked = !binding.chkDurTiempo.isChecked
+            binding.edtCantRep.isEnabled = !binding.chkDurTiempo.isChecked
         }
 
         binding.btnConfRutina.setOnClickListener {
@@ -175,6 +178,7 @@ class AddEjerFragment : Fragment() {
                 )
                 ejercicioList.add(ejercicio)
                 (binding.recyclerListaEjercicios.adapter as EjercicioAdapterVistaPrevia).submitList(ejercicioList.toList())
+                Toast.makeText(requireContext(), "Ejercicio agregado", Toast.LENGTH_SHORT).show()
             }else{
                 Toast.makeText(requireContext(), "Debes llenar todos los campos para introducir un ejercicio", Toast.LENGTH_SHORT).show()
             }
