@@ -33,6 +33,7 @@ import kotlinx.coroutines.launch
 class AddEjerFragment : Fragment() {
 
     private var negacion = false
+    private var negacion2 = false
     private var rutina = Rutina(nombre = "")
 
     val viewModel: AddEjerFragmentViewModel by viewModels {
@@ -155,18 +156,21 @@ class AddEjerFragment : Fragment() {
         // Agregar TextWatcher a los EditText
         addTimeTextWatcher(binding.edtimeDuracionEjercicio)
         addTimeTextWatcher(binding.edtimeDuracionDescanso)
+        addNumberTextWatcher(binding.edtCantRep)
 
 
         binding.btnGuardarEjercicio.setOnClickListener {
+            val tipo = binding.chkRepeticion.isChecked
             if (binding.edtNombreEjercicio.text.isNotEmpty() &&
                 binding.edtimeDuracionEjercicio.text.isNotEmpty() &&
                 binding.edtimeDuracionDescanso.text.isNotEmpty() &&
-                !negacion) {
+                !negacion &&
+                (!tipo || (tipo && !negacion2))) {
                 val nombreEjercicio = binding.edtNombreEjercicio.text.toString()
                 val duracionEjercicio = darFormato(binding.edtimeDuracionEjercicio.text.toString())
                 val duracionDescanso = darFormato(binding.edtimeDuracionDescanso.text.toString())
-                val tipo = binding.chkRepeticion.isChecked
-                val objetivo = binding.edtCantRep.text?.toString()
+
+                val objetivo = if (tipo) binding.edtCantRep.text?.toString() else null
                 val ejercicio = Ejercicio(
                     ID = 0,
                     Nombre = nombreEjercicio,
@@ -176,6 +180,10 @@ class AddEjerFragment : Fragment() {
                     tipo,
                     rutinaId = rutina.ID
                 )
+                binding.edtNombreEjercicio.text.clear()
+                binding.edtimeDuracionEjercicio.text.clear()
+                binding.edtimeDuracionDescanso.text.clear()
+                binding.edtCantRep.text?.clear()
                 ejercicioList.add(ejercicio)
                 (binding.recyclerListaEjercicios.adapter as EjercicioAdapterVistaPrevia).submitList(ejercicioList.toList())
                 Toast.makeText(requireContext(), "Ejercicio agregado", Toast.LENGTH_SHORT).show()
@@ -215,6 +223,32 @@ class AddEjerFragment : Fragment() {
         val regex = "^([01]?\\d|2[0-3]):([0-5]?\\d)$".toRegex()
         return time.matches(regex)
     }
+
+    private fun addNumberTextWatcher(editText: EditText) {
+        editText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val input = s.toString()
+                if (input.isNotEmpty()) {
+                    val number = input.toIntOrNull()
+                    if (number != null && number > 0) {
+                        editText.error = null
+                        negacion2 = false
+                    } else {
+                        editText.error = "Ingresa un número mayor a cero"
+                        negacion2 = true
+                    }
+                } else {
+                    editText.error = "El campo no puede estar vacío"
+                    negacion2 = true
+                }
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
+    }
+
 
 
     override fun onDestroyView() {
