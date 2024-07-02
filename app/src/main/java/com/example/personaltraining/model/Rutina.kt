@@ -6,5 +6,5 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "Rutina")
 data class Rutina(
     @PrimaryKey(autoGenerate = true) val ID: Int = 0,
-    val nombre: String
+    var nombre: String
 )

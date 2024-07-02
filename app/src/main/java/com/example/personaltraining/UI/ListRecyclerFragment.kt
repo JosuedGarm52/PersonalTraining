@@ -112,6 +112,9 @@ class ListRecyclerFragment : Fragment() {
         Log.d("ListRecyclerFragment", "onItem edit")
         Toast.makeText(requireContext(), "Editar ${rutina.nombre}", Toast.LENGTH_SHORT).show()
         // Implementa lógica para editar la rutina
+
+        val action = ListRecyclerFragmentDirections.actionListRecyclerFragmentToEditEjerFragment(rutina.ID)
+        findNavController().navigate(action)
     }
 
     override fun onDestroyView() {

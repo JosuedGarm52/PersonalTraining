@@ -138,6 +138,7 @@ class AddEjerFragment : Fragment() {
         binding.chkDurTiempo.setOnClickListener {
             binding.chkRepeticion.isChecked = !binding.chkDurTiempo.isChecked
             binding.edtCantRep.isEnabled = !binding.chkDurTiempo.isChecked
+            binding.edtimeDuracionEjercicio.hint = if (binding.chkRepeticion.isChecked) "Estimacion del ejercicio" else "Duracion del ejercicio"
         }
 
         binding.btnConfRutina.setOnClickListener {

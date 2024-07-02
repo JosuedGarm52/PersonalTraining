@@ -13,6 +13,9 @@
         <action
             android:id="@+id/action_ListRecyclerFragment_to_AddEjerFragment"
             app:destination="@id/AddEjerFragment" />
+        <action
+            android:id="@+id/action_ListRecyclerFragment_to_EditEjerFragment"
+            app:destination="@id/EditEjerFragment" />
     </fragment>
     <fragment
         android:id="@+id/AddEjerFragment"
@@ -25,4 +28,18 @@
             android:id="@+id/action_AddEjerFragment_to_ListRecyclerFragment"
             app:destination="@id/ListRecyclerFragment" />
     </fragment>
+    <fragment android:id="@+id/EditEjerFragment"
+        android:name="com.example.personaltraining.UI.EditEjerFragment"
+        android:label="Edit ejercicio Frag"
+        tools:layout="@layout/edit_ejer_fragment">
+
+        <action
+            android:id="@+id/action_EditEjerFragment_to_ListRecyclerFragment"
+            app:destination="@id/ListRecyclerFragment" />
+        <argument
+            android:name="ID"
+            app:argType="integer"
+            android:defaultValue="0" />
+    </fragment>
+
 </navigation>

@@ -12,11 +12,17 @@ interface EjercicioDao {
     @Query("SELECT * FROM Ejercicio WHERE rutinaId = :rutinaId")
     fun getEjerciciosByRutinaId(rutinaId: Int): Flow<List<Ejercicio>>
 
+    @Insert
+    suspend fun onlyAdd(ejercicio: Ejercicio)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(ejercicio: Ejercicio)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(ejercicios: List<Ejercicio>)
+
+    @Query("DELETE FROM Ejercicio WHERE ID = :ejercicioId")
+    suspend fun deleteEjercicioById(ejercicioId: Int)
 
     @Query("DELETE FROM Ejercicio WHERE rutinaId = :rutinaId")
     suspend fun deleteEjerciciosByRutinaId(rutinaId: Int)

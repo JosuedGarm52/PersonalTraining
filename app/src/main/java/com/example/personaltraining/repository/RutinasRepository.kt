@@ -21,6 +21,10 @@ class RutinasRepository (
 
     fun getAllRutinas(): Flow<List<Rutina>> = rutinaDao.getAll()
 
+    suspend fun getRutinaById(rutinaId: Int): Rutina? {
+        return rutinaDao.getRutinaById(rutinaId)
+    }
+
     @WorkerThread
     suspend fun insertRutina(rutina: Rutina): Long {
         return rutinaDao.insert(rutina)
@@ -36,6 +40,11 @@ class RutinasRepository (
     }
 
     @WorkerThread
+    suspend fun soloAdd(ejercicio: Ejercicio) {
+        ejercicioDao.onlyAdd(ejercicio)
+    }
+
+    @WorkerThread
     suspend fun insertEjercicios(ejercicios: List<Ejercicio>) {
         ejercicioDao.insertAll(ejercicios)
     }
@@ -43,6 +52,10 @@ class RutinasRepository (
     @Transaction
     suspend fun deleteRutina(rutinaId: Int) {
         rutinaDao.deleteRutinaById(rutinaId)
+    }
+
+    suspend fun deleteEjercicioById(ejercicioId: Int) {
+        ejercicioDao.deleteEjercicioById(ejercicioId)
     }
 
     @WorkerThread
