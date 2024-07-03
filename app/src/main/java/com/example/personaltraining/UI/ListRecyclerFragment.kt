@@ -84,6 +84,7 @@ class ListRecyclerFragment : Fragment() {
         try {
             listRecyclerFragmentViewModel.rutinasKardex.observe(viewLifecycleOwner, Observer { rutinas ->
                 rutinas?.let {
+                    Log.d("ListRecyclerFragment", "Lista de rutinas actualizada: $it")
                     adapter.submitList(it)
                 }
             })

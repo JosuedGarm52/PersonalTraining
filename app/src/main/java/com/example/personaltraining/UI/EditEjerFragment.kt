@@ -13,6 +13,8 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavOptions
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.personaltraining.R
@@ -85,7 +87,7 @@ class EditEjerFragment : Fragment() {
         }
 
         viewModel.ejercicios.observe(viewLifecycleOwner, Observer { ejercicios ->
-            //Log.d("EditEjerFragment", "Lista de ejercicios actualizada: $ejercicios")
+            Log.d("EditEjerFragment", "Lista de ejercicios actualizada: $ejercicios")
             adapter.submitList(ejercicios)
         })
 
@@ -201,7 +203,30 @@ class EditEjerFragment : Fragment() {
     }
 
     private fun deleteEjercicio(ejercicio: Ejercicio) {
-        viewModel.deleteEjercicio(ejercicio)
+        // Verificar si es el último ejercicio en la lista
+        if (viewModel.ejercicios.value?.size == 1) {
+            // Mostrar un cuadro de diálogo de confirmación
+            AlertDialog.Builder(requireContext())
+                .setTitle("Eliminar Rutina")
+                .setMessage("Este es el último ejercicio en la rutina. ¿Estás seguro de que deseas eliminarlo? Esto también eliminará la rutina y te regresará a la página principal.")
+                .setPositiveButton("Sí") { dialog, _ ->
+                    // Eliminar la rutina y regresar a la página principal
+                    viewModel.deleteRutinaWithExercises(ejercicio.rutinaId)
+                    val navOptions = NavOptions.Builder()
+                        .setPopUpTo(R.id.EditEjerFragment, true)
+                        .build()
+                    findNavController().navigate(R.id.action_EditEjerFragment_to_ListRecyclerFragment, null, navOptions)
+                    dialog.dismiss()
+                }
+                .setNegativeButton("No") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .create()
+                .show()
+        } else {
+            // Eliminar solo el ejercicio
+            viewModel.deleteEjercicio(ejercicio)
+        }
     }
 
     private fun darFormato(string: String) : String{

@@ -1,5 +1,6 @@
 package com.example.personaltraining.repository
 
+import android.util.Log
 import androidx.annotation.WorkerThread
 import androidx.room.Transaction
 import com.example.personaltraining.model.Ejercicio
@@ -61,7 +62,16 @@ class RutinasRepository (
     @WorkerThread
     @Transaction
     suspend fun deleteRutinaWithExercises(rutinaId: Int) {
-        ejercicioDao.deleteEjerciciosByRutinaId(rutinaId)
-        rutinaDao.deleteRutinaById(rutinaId)
+        try {
+            //Log.d("RutinasRepository", "Deleting exercises with rutinaId: $rutinaId")
+            ejercicioDao.deleteEjerciciosByRutinaId(rutinaId)
+            //Log.d("RutinasRepository", "Exercises deleted for rutinaId: $rutinaId")
+
+            //Log.d("RutinasRepository", "Deleting rutina with id: $rutinaId")
+            rutinaDao.deleteRutinaById(rutinaId)
+            //Log.d("RutinasRepository", "Rutina and exercises deleted successfully")
+        } catch (e: Exception) {
+            Log.e("RutinasRepository", "Error deleting rutina and exercises: ${e.message}", e)
+        }
     }
 }

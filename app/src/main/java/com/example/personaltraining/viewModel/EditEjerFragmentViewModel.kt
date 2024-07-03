@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.personaltraining.model.Ejercicio
 import com.example.personaltraining.model.Rutina
 import com.example.personaltraining.repository.RutinasRepository
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
@@ -27,7 +28,7 @@ class EditEjerFragmentViewModel(private val rutinasRepository: RutinasRepository
     fun getRutinaById(rutinaId: Int) {
         viewModelScope.launch {
             val result = rutinasRepository.getRutinaById(rutinaId)
-            //Log.d("EditEjerFragmentViewModel", "Ejercicios obtenidos: $result")
+            Log.d("EditEjerFragmentViewModel", "Ejercicios obtenidos: $result")
             _rutina.value = result
             if (result == null) {
                 Log.e("EditEjerFragmentViewModel", "Rutina no encontrada")
@@ -64,6 +65,16 @@ class EditEjerFragmentViewModel(private val rutinasRepository: RutinasRepository
         viewModelScope.launch {
             rutinasRepository.soloAdd(ejercicio)
             getEjerciciosByRutinaId(ejercicio.rutinaId)
+        }
+    }
+    fun deleteRutinaWithExercises(rutinaId: Int) {
+        viewModelScope.launch(SupervisorJob()) {
+            try {
+                rutinasRepository.deleteRutinaWithExercises(rutinaId)
+                Log.d("ListRecyclerFragmentViewModel", "Rutina with id $rutinaId deleted")
+            } catch (e: Exception) {
+                Log.e("ListRecyclerFragmentViewModel", "Error deleting rutina with id $rutinaId: ${e.message}", e)
+            }
         }
     }
 }
