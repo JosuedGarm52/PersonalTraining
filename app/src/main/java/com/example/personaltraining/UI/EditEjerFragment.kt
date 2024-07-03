@@ -106,6 +106,7 @@ class EditEjerFragment : Fragment() {
                 var currentRutina = viewModel.rutina.value
                 if (currentRutina != null) {
                     currentRutina.nombre = newName
+                    //Log.d("EditEjerFragment", "Datos de la rutina actualizados: $currentRutina")
                     viewModel.updateRutina(currentRutina)
                     Toast.makeText(requireContext(), "Nombre de la rutina cambiado", Toast.LENGTH_SHORT).show()
                 } else {

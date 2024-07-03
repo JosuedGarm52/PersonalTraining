@@ -51,7 +51,7 @@ class EditEjerFragmentViewModel(private val rutinasRepository: RutinasRepository
     }
     fun updateRutina(rutina: Rutina) {
         viewModelScope.launch {
-            rutinasRepository.insertRutina(rutina)
+            rutinasRepository.updateRutina(rutina)
             getEjerciciosByRutinaId(rutina.ID)
         }
     }

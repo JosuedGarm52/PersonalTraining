@@ -30,6 +30,10 @@ class RutinasRepository (
     suspend fun insertRutina(rutina: Rutina): Long {
         return rutinaDao.insert(rutina)
     }
+    @WorkerThread
+    suspend fun updateRutina(rutina: Rutina) {
+        rutinaDao.updateRutina(rutina)
+    }
 
     fun getEjerciciosByRutinaId(rutinaId: Int): Flow<List<Ejercicio>> {
         return ejercicioDao.getEjerciciosByRutinaId(rutinaId)
