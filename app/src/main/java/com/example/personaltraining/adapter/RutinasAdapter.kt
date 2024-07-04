@@ -28,12 +28,14 @@ class RutinasAdapter(
         val swipeRevealLayout: SwipeRevealLayout = item.findViewById(R.id.swipeRevealLayout)
         val tvTitulo: TextView = item.findViewById(R.id.tvTitulo)
         val tvDuracionEjer: TextView = item.findViewById(R.id.tvDuracionEjer)
+        val tvFecha: TextView = item.findViewById(R.id.tvFechaCreacion)
         val btnDelete: LinearLayout = item.findViewById(R.id.catalogDelete)
         val btnEditar: LinearLayout = item.findViewById(R.id.catalogEdit)
 
         fun bind(rutina: Rutina) {
             tvTitulo.text = "Rutina N°: " + rutina.ID.toString() + " " + rutina.nombre
             tvDuracionEjer.text = ""
+            tvFecha.text = "Fecha de creacion: "+ rutina.fechaCreacion
 
             itemView.setOnClickListener {
                 clickt(rutina)
