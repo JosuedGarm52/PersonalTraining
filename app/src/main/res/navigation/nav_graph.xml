@@ -16,6 +16,8 @@
         <action
             android:id="@+id/action_ListRecyclerFragment_to_EditEjerFragment"
             app:destination="@id/EditEjerFragment" />
+        <action android:id="@+id/action_ListRecyclerFragment_to_CronoFragment"
+            app:destination="@id/CronoFragment" />
     </fragment>
     <fragment
         android:id="@+id/AddEjerFragment"
@@ -35,6 +37,19 @@
 
         <action
             android:id="@+id/action_EditEjerFragment_to_ListRecyclerFragment"
+            app:destination="@id/ListRecyclerFragment" />
+        <argument
+            android:name="ID"
+            app:argType="integer"
+            android:defaultValue="0" />
+    </fragment>
+
+    <fragment android:id="@+id/CronoFragment"
+        android:name="com.example.personaltraining.UI.CronoFragment"
+        android:label="Crono Frag"
+        tools:layout="@layout/crono_fragment">
+        <action
+            android:id="@+id/action_CronoFragment_to_ListRecyclerFragment"
             app:destination="@id/ListRecyclerFragment" />
         <argument
             android:name="ID"

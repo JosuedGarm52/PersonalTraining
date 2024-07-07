@@ -95,11 +95,11 @@ class ListRecyclerFragment : Fragment() {
     }
 
     private fun onItemClick(it: Rutina) {
-        Log.d("FirstFragment", "onItem clic")
+        Log.d("ListRecyclerFragment", "onItem clic")
         Toast.makeText(requireContext(), "Clic a ${it.nombre}", Toast.LENGTH_SHORT).show()
 
-        //val action = ListRecyclerFragmentDirections.actionFirstFragmentToSecondFragment(it.ID)
-        //findNavController().navigate(action)
+        val action = ListRecyclerFragmentDirections.actionListRecyclerFragmentToCronoFragment(it.ID)
+        findNavController().navigate(action)
     }
 
     private fun onItemDelete(rutina: Rutina) {

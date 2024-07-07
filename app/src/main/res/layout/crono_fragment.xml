@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/orange"
+    tools:context=".UI.CronoFragment">
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Temporizador de rutina"
+        android:textColor="@color/white"
+        android:textSize="34sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_crono_Estado"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Ejercicio iniciara en ..."
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView6" />
+
+    <!-- Layout para el cronómetro -->
+    <LinearLayout
+        android:id="@+id/layout_crono"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/img_crono_ejercicio">
+
+        <TextView
+            android:id="@+id/tv_crono_tiempo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="00:10"
+            android:textColor="@color/white"
+            android:textSize="120sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+
+    <!-- Layout para las repeticiones -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_reps"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/img_crono_ejercicio">
+
+        <TextView
+            android:id="@+id/tv_numero_reps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="XX"
+            android:textColor="@color/white"
+            android:textSize="60sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_crono_subtitulo" />
+
+        <TextView
+            android:id="@+id/tv_crono_reps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="00:10"
+            android:textColor="@color/white"
+            android:textSize="96sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_numero_reps" />
+
+        <TextView
+            android:id="@+id/tv_crono_subtitulo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Numero de repeticiones"
+            android:textColor="@color/white"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ImageView
+        android:id="@+id/img_crono_ejercicio"
+        android:layout_width="229dp"
+        android:layout_height="199dp"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/logo_personal_training"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_crono_Estado" />
+
+    <ImageButton
+        android:id="@+id/btnSiguiente"
+        style="@style/BaseCircularButton"
+        android:layout_width="93dp"
+        android:layout_height="93dp"
+        android:layout_margin="16dp"
+        android:background="@drawable/circular1_button_background"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_right_arrow_white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btnMasCinco" />
+
+    <ImageButton
+        android:id="@+id/btnAnterior"
+        style="@style/BaseCircularButton"
+        android:layout_width="93dp"
+        android:layout_height="93dp"
+        android:layout_margin="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/circular1_button_background"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_left_arrow_white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btnSiguiente" />
+
+    <Button
+        android:id="@+id/btnMasCinco"
+        android:layout_width="74dp"
+        android:layout_height="72dp"
+        android:layout_margin="16dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/circular_mas_cinco_button_background"
+        android:text="+5"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+
+    <ImageButton
+        android:id="@+id/btnPausa"
+        style="@style/BaseCircularButton"
+        android:layout_width="74dp"
+        android:layout_height="72dp"
+        android:layout_margin="16dp"
+        android:layout_marginBottom="36dp"
+        android:background="@drawable/circular_mas_cinco_button_background"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_pause"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btnAnterior" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
