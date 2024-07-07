@@ -19,7 +19,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="16dp" />
 
     <TextView
         android:id="@+id/tv_crono_Estado"
@@ -33,9 +34,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView6" />
+        app:layout_constraintTop_toBottomOf="@id/textView6" />
 
-    <!-- Layout para el cronómetro -->
+    <ImageView
+        android:id="@+id/img_crono_ejercicio"
+        android:layout_width="205dp"
+        android:layout_height="158dp"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/logo_personal_training"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_crono_Estado" />
+
     <LinearLayout
         android:id="@+id/layout_crono"
         android:layout_width="0dp"
@@ -48,7 +59,7 @@
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/img_crono_ejercicio">
+        app:layout_constraintTop_toBottomOf="@id/img_crono_ejercicio">
 
         <TextView
             android:id="@+id/tv_crono_tiempo"
@@ -60,12 +71,10 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-
-    <!-- Layout para las repeticiones -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout_reps"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="378dp"
+        android:layout_height="242dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
@@ -73,13 +82,13 @@
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/img_crono_ejercicio">
+        app:layout_constraintTop_toBottomOf="@id/img_crono_ejercicio">
 
         <TextView
             android:id="@+id/tv_numero_reps"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:text="XX"
             android:textColor="@color/white"
             android:textSize="60sp"
@@ -87,13 +96,13 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_crono_subtitulo" />
+            app:layout_constraintTop_toBottomOf="@id/tv_crono_subtitulo" />
 
         <TextView
             android:id="@+id/tv_crono_reps"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
+            android:layout_marginTop="4dp"
             android:text="00:10"
             android:textColor="@color/white"
             android:textSize="96sp"
@@ -101,7 +110,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_numero_reps" />
+            app:layout_constraintTop_toBottomOf="@id/tv_numero_reps" />
 
         <TextView
             android:id="@+id/tv_crono_subtitulo"
@@ -117,69 +126,69 @@
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <ImageView
-        android:id="@+id/img_crono_ejercicio"
-        android:layout_width="229dp"
-        android:layout_height="199dp"
-        android:layout_marginTop="16dp"
-        android:src="@drawable/logo_personal_training"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_crono_Estado" />
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineBottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_end="16dp" />
 
     <ImageButton
         android:id="@+id/btnSiguiente"
         style="@style/BaseCircularButton"
-        android:layout_width="93dp"
-        android:layout_height="93dp"
-        android:layout_margin="16dp"
+        android:layout_width="94dp"
+        android:layout_height="97dp"
+        android:layout_margin="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="8dp"
         android:background="@drawable/circular1_button_background"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_right_arrow_white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/btnMasCinco" />
+        app:layout_constraintBottom_toTopOf="@id/guidelineBottom"
+        app:layout_constraintEnd_toStartOf="@id/btnMasCinco"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/btnPausa" />
 
     <ImageButton
         android:id="@+id/btnAnterior"
         style="@style/BaseCircularButton"
-        android:layout_width="93dp"
-        android:layout_height="93dp"
-        android:layout_margin="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_width="96dp"
+        android:layout_height="98dp"
+        android:layout_margin="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
         android:background="@drawable/circular1_button_background"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_left_arrow_white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/btnSiguiente" />
+        app:layout_constraintBottom_toTopOf="@id/guidelineBottom"
+        app:layout_constraintEnd_toStartOf="@+id/btnMasCinco"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@id/btnPausa" />
 
     <Button
         android:id="@+id/btnMasCinco"
-        android:layout_width="74dp"
+        android:layout_width="72dp"
         android:layout_height="72dp"
-        android:layout_margin="16dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="16dp"
+        android:layout_margin="8dp"
         android:background="@drawable/circular_mas_cinco_button_background"
         android:text="+5"
         android:textSize="20sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/guidelineBottom"
         app:layout_constraintEnd_toEndOf="parent" />
-
 
     <ImageButton
         android:id="@+id/btnPausa"
         style="@style/BaseCircularButton"
-        android:layout_width="74dp"
-        android:layout_height="72dp"
-        android:layout_margin="16dp"
-        android:layout_marginBottom="36dp"
+        android:layout_width="73dp"
+        android:layout_height="68dp"
+        android:layout_margin="8dp"
         android:background="@drawable/circular_mas_cinco_button_background"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_pause"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/btnAnterior" />
+        app:layout_constraintBottom_toTopOf="@id/guidelineBottom"
+        app:layout_constraintStart_toStartOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
