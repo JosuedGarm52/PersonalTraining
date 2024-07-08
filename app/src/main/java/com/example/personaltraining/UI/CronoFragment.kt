@@ -1,6 +1,7 @@
 package com.example.personaltraining.UI
 
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -35,21 +36,7 @@ class CronoFragment : Fragment() {
     private lateinit var viewModel: CronoFragmentViewModel
     private lateinit var viewModelFactory: CronoFragmentViewModelFactory
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        // Verificar que args.ID no sea cero
-        if (args.ID == 0) {
-            Log.e(TAG, "ID no válido")
-            Toast.makeText(requireContext(), "ID no válido", Toast.LENGTH_SHORT).show()
-            findNavController().popBackStack()
-        }
-
-        // Initialize ViewModel and ViewModelFactory
-        val repository = (requireActivity().application as RutinasApplication).repository
-        viewModelFactory = CronoFragmentViewModelFactory(repository, args.ID)
-        viewModel = ViewModelProvider(this, viewModelFactory)[CronoFragmentViewModel::class.java]
-    }
+    private var timer: CountDownTimer? = null // Temporizador para el cronómetro
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -62,15 +49,52 @@ class CronoFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Setup any initial UI or logic
-        setupUI()
+        // Verificar que args.ID no sea cero
+        if (args.ID == 0) {
+            Log.e(TAG, "ID no válido")
+            Toast.makeText(requireContext(), "ID no válido", Toast.LENGTH_SHORT).show()
+            findNavController().popBackStack()
+        }
+
+        // Initialize ViewModel and ViewModelFactory
+        val repository = (requireActivity().application as RutinasApplication).repository
+        viewModelFactory = CronoFragmentViewModelFactory(repository, args.ID)
+        viewModel = ViewModelProvider(this, viewModelFactory)[CronoFragmentViewModel::class.java]
+
+        observeViewModel()
     }
-    private fun setupUI() {
-        // Example: Setup initial state based on ViewModel data
-        viewModel.exerciseList.observe(viewLifecycleOwner) { exercises ->
-            // Update UI based on exercises
+    private fun observeViewModel() {
+
+        viewModel.currentExercise.observe(viewLifecycleOwner) { exercise ->
+            exercise?.let {
+                if (it.isObjetivo) {
+                    showReps()
+                    binding.tvNumeroReps.text = it.Objetivo ?: "XX"
+                } else {
+                    showCrono()
+                }
+            } ?: run {
+                // Manejar caso donde exercise es nulo si es necesario
+                showCrono() // Mostrar por defecto el cronómetro si no hay ejercicio actual
+            }
+        }
+
+
+        viewModel.timeLeft.observe(viewLifecycleOwner) { timeLeft ->
+            // Actualizar el tiempo restante en la UI
+            binding.tvCronoTiempo.text = viewModel.secondsToMMSS(timeLeft)
+        }
+
+        viewModel.isResting.observe(viewLifecycleOwner) { isResting ->
+            // Lógica para manejar cambios en el estado de descanso en la UI si es necesario
+            if (isResting) {
+                // Mostrar estado de descanso en la UI si es necesario
+            } else {
+                // Mostrar estado de ejercicio en la UI si es necesario
+            }
         }
     }
+
     fun showCrono() {
         binding.layoutCrono.visibility = View.VISIBLE
         binding.layoutReps.visibility = View.GONE
@@ -83,6 +107,7 @@ class CronoFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        timer?.cancel() // Detener el temporizador al destruir la vista
     }
 
 }

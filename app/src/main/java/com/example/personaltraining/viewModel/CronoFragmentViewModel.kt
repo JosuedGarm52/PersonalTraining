@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 class CronoFragmentViewModel(
     private val rutinasRepository: RutinasRepository,
     private val rutinaId: Int
-        ) : ViewModel() {
+) : ViewModel() {
 
     private val _TAG = "CronoFragmentViewModel"
     private val _timeLeft = MutableLiveData<Long>()
@@ -34,13 +34,18 @@ class CronoFragmentViewModel(
 
     init {
         viewModelScope.launch {
+            loadExercises()
+        }
+    }
+
+    private fun loadExercises() {
+        viewModelScope.launch {
             rutinasRepository.getEjerciciosByRutinaId(rutinaId)
                 .catch { e ->
-                    // Manejar errores, como cuando no se encuentra el ejercicio
                     Log.e(_TAG, "Error fetching exercises: $e")
+                    // Manejar el error apropiadamente
                 }
                 .collect { ejercicios ->
-                    // Ejecutar cuando se reciben ejercicios del flujo
                     _exerciseList.value = ejercicios
                     if (ejercicios.isNotEmpty()) {
                         startPreparation()
@@ -49,47 +54,69 @@ class CronoFragmentViewModel(
         }
     }
 
-
     private fun startPreparation() {
-        _timeLeft.value = 10L * 1000L // 10 segundos
+        _timeLeft.value = 10L * 1000L // 10 segundos de preparación
         _isResting.value = false
-        startTimer()
-    }
 
-    private fun startTimer() {
-        val timer = object : CountDownTimer(_timeLeft.value!!, 1000L) {
+        val preparationTimer = object : CountDownTimer(_timeLeft.value ?: 0L, 1000L) {
             override fun onTick(millisUntilFinished: Long) {
                 _timeLeft.value = millisUntilFinished
+                Log.d(_TAG, "Cuenta regresiva: ${millisUntilFinished / 1000}")
             }
 
             override fun onFinish() {
-                if (_isResting.value == true) {
-                    startNextExercise()
-                } else {
-                    startRest()
-                }
+                startExercise()
             }
         }
-        timer.start()
+        preparationTimer.start()
+    }
+
+    private fun startExercise() {
+        if (exerciseIndex < exerciseList.value?.size ?: 0) {
+            _currentExercise.value = exerciseList.value?.get(exerciseIndex)
+            _timeLeft.value = mmssToSeconds(_currentExercise.value?.DEjercicio ?: "00:00")
+            Log.d(_TAG, "Tiempo del ejercicio empezando: ${_currentExercise.value?.DEjercicio}, en segundos: ${_timeLeft.value}")
+            _isResting.value = false
+
+            startExerciseTimer()
+        } else {
+            // Aquí podrías manejar el fin de la rutina o navegar a otro fragmento si es necesario
+        }
+    }
+
+    private fun startExerciseTimer() {
+        val exerciseTimer = object : CountDownTimer(_timeLeft.value ?: 0L, 1000L) {
+            override fun onTick(millisUntilFinished: Long) {
+                _timeLeft.value = millisUntilFinished
+                Log.d(_TAG, "Ejercicio...: ${millisUntilFinished / 1000}")
+            }
+
+            override fun onFinish() {
+                startRest()
+            }
+        }
+        exerciseTimer.start()
     }
 
     private fun startRest() {
         _isResting.value = true
-        _timeLeft.value = mmssToSeconds(_currentExercise.value?.DEjercicio ?: "00:00")
-        startTimer()
+        _timeLeft.value = mmssToSeconds(_currentExercise.value?.DDescanso ?: "00:00")
+        Log.d(_TAG, "Tiempo del descanso empezando: ${_currentExercise.value?.DDescanso}, en segundos: ${_timeLeft.value}")
+
+        val restTimer = object : CountDownTimer(_timeLeft.value ?: 0L, 1000L) {
+            override fun onTick(millisUntilFinished: Long) {
+                _timeLeft.value = millisUntilFinished
+                Log.d(_TAG, "Descanso...: ${millisUntilFinished / 1000}")
+            }
+
+            override fun onFinish() {
+                exerciseIndex++
+                startExercise()
+            }
+        }
+        restTimer.start()
     }
 
-    private fun startNextExercise() {
-        if (exerciseIndex < exerciseList.value?.size ?: 0) {
-            _currentExercise.value = exerciseList.value?.get(exerciseIndex)
-            _timeLeft.value = mmssToSeconds(_currentExercise.value?.DEjercicio ?: "00:00")
-            _isResting.value = false
-            exerciseIndex++
-            startTimer()
-        } else {
-            // Navegar a otro fragmento
-        }
-    }
     fun mmssToSeconds(timeMMSS: String): Long {
         val parts = timeMMSS.split(":")
         if (parts.size != 2) {
@@ -97,18 +124,16 @@ class CronoFragmentViewModel(
         }
         val minutes = parts[0].toLong()
         val seconds = parts[1].toLong()
-        return minutes * 60 + seconds
+        return (minutes * 60 + seconds) * 1000 // Convertir a milisegundos
     }
+
     fun secondsToMMSS(seconds: Long): String {
         val minutes = seconds / 60
         val remainingSeconds = seconds % 60
         return String.format("%02d:%02d", minutes, remainingSeconds)
-
-        // Cuando necesites mostrar el tiempo en formato MM:SS
-        //val tiempoFormateado = secondsToMMSS(tiempoEnSegundos)
     }
-
 }
+
 
 class CronoFragmentViewModelFactory(
     private val rutinasRepository: RutinasRepository,
