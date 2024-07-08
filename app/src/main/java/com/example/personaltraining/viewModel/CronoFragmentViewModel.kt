@@ -77,7 +77,8 @@ class CronoFragmentViewModel(
             _timeLeft.value = mmssToSeconds(_currentExercise.value?.DEjercicio ?: "00:00")
             Log.d(_TAG, "Tiempo del ejercicio empezando: ${_currentExercise.value?.DEjercicio}, en segundos: ${_timeLeft.value}")
             _isResting.value = false
-
+            _isResting.value = true
+            _isResting.value = false
             startExerciseTimer()
         } else {
             // Aquí podrías manejar el fin de la rutina o navegar a otro fragmento si es necesario
@@ -89,6 +90,7 @@ class CronoFragmentViewModel(
             override fun onTick(millisUntilFinished: Long) {
                 _timeLeft.value = millisUntilFinished
                 Log.d(_TAG, "Ejercicio...: ${millisUntilFinished / 1000}")
+                Log.d(_TAG, "Formato cronometro: ${secondsToMMSS(millisUntilFinished / 1000)}")
             }
 
             override fun onFinish() {

@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -32,6 +33,7 @@ class CronoFragment : Fragment() {
 
     private val args: CronoFragmentArgs by navArgs()
     private val TAG = "CronoFragment"
+    private var primero = true
 
     private lateinit var viewModel: CronoFragmentViewModel
     private lateinit var viewModelFactory: CronoFragmentViewModelFactory
@@ -82,28 +84,34 @@ class CronoFragment : Fragment() {
 
         viewModel.timeLeft.observe(viewLifecycleOwner) { timeLeft ->
             // Actualizar el tiempo restante en la UI
-            binding.tvCronoTiempo.text = viewModel.secondsToMMSS(timeLeft)
+            binding.tvCronoTiempo.text = viewModel.secondsToMMSS(timeLeft / 1000)
         }
 
         viewModel.isResting.observe(viewLifecycleOwner) { isResting ->
             // Lógica para manejar cambios en el estado de descanso en la UI si es necesario
             if (isResting) {
-                // Mostrar estado de descanso en la UI si es necesario
+                binding.tvCronoEstado.text = "Descanso"
+                binding.root.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.resting_background))
             } else {
-                // Mostrar estado de ejercicio en la UI si es necesario
+                if (!primero) {
+                    binding.tvCronoEstado.text = "Ejercicio"
+                    binding.root.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.exercise_background))
+                }
+                primero = false
             }
         }
     }
 
-    fun showCrono() {
+    private fun showCrono() {
         binding.layoutCrono.visibility = View.VISIBLE
         binding.layoutReps.visibility = View.GONE
     }
 
-    fun showReps() {
+    private fun showReps() {
         binding.layoutCrono.visibility = View.GONE
         binding.layoutReps.visibility = View.VISIBLE
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
