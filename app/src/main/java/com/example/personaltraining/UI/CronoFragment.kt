@@ -16,6 +16,7 @@ import androidx.navigation.fragment.navArgs
 import com.example.personaltraining.R
 import com.example.personaltraining.application.RutinasApplication
 import com.example.personaltraining.databinding.CronoFragmentBinding
+import com.example.personaltraining.model.Ejercicio
 import com.example.personaltraining.viewModel.CronoFragmentViewModel
 import com.example.personaltraining.viewModel.CronoFragmentViewModelFactory
 
@@ -66,41 +67,62 @@ class CronoFragment : Fragment() {
         observeViewModel()
     }
     private fun observeViewModel() {
-
         viewModel.currentExercise.observe(viewLifecycleOwner) { exercise ->
-            exercise?.let {
-                if (it.isObjetivo) {
-                    showReps()
-                    binding.tvNumeroReps.text = it.Objetivo ?: "XX"
-                } else {
-                    showCrono()
-                }
-            } ?: run {
-                // Manejar caso donde exercise es nulo si es necesario
-                showCrono() // Mostrar por defecto el cronómetro si no hay ejercicio actual
-            }
+            handleCurrentExercise(exercise)
         }
 
-
         viewModel.timeLeft.observe(viewLifecycleOwner) { timeLeft ->
-            // Actualizar el tiempo restante en la UI
-            binding.tvCronoTiempo.text = viewModel.secondsToMMSS(timeLeft / 1000)
+            updateTimeLeft(timeLeft)
         }
 
         viewModel.isResting.observe(viewLifecycleOwner) { isResting ->
-            // Lógica para manejar cambios en el estado de descanso en la UI si es necesario
-            if (isResting) {
-                binding.tvCronoEstado.text = "Descanso"
-                binding.root.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.resting_background))
-            } else {
-                if (!primero) {
-                    binding.tvCronoEstado.text = "Ejercicio"
-                    binding.root.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.exercise_background))
-                }
-                primero = false
-            }
+            updateRestingState(isResting)
         }
     }
+
+    private fun handleCurrentExercise(exercise: Ejercicio?) {
+        exercise?.let {
+            isObjetive = it.isObjetivo
+            if (it.isObjetivo) {
+                showReps()
+                binding.tvNumeroReps.text = it.Objetivo ?: "XX"
+            } else {
+                showCrono()
+            }
+        } ?: run {
+            // Manejar caso donde exercise es nulo si es necesario
+            showCrono() // Mostrar por defecto el cronómetro si no hay ejercicio actual
+        }
+    }
+
+    private fun updateTimeLeft(timeLeft: Long) {
+        // Actualizar el tiempo restante en la UI
+        val timeString = viewModel.secondsToMMSS(timeLeft / 1000)
+        if (isObjetive) {
+            binding.tvCronoReps.text = timeString
+        } else {
+            binding.tvCronoTiempo.text = timeString
+        }
+    }
+
+    private fun updateRestingState(isResting: Boolean) {
+        // Lógica para manejar cambios en el estado de descanso en la UI si es necesario
+        if (isResting) {
+            binding.tvCronoEstado.text = "Descansando..."
+            updateBackgroundColor(R.color.resting_background)
+        } else {
+            if (!primero) {
+                binding.tvCronoEstado.text = viewModel.currentExercise.value?.Nombre ?: "Ejercicio"
+                updateBackgroundColor(R.color.exercise_background)
+            }
+            primero = false
+        }
+    }
+
+    private fun updateBackgroundColor(colorResId: Int) {
+        binding.root.setBackgroundColor(ContextCompat.getColor(requireContext(), colorResId))
+    }
+    private var isObjetive = false
 
     private fun showCrono() {
         binding.layoutCrono.visibility = View.VISIBLE
