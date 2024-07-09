@@ -102,18 +102,23 @@ class CronoFragment : Fragment() {
     private fun updateTimeLeft(timeLeft: Long) {
         // Actualizar el tiempo restante en la UI
         val timeString = viewModel.secondsToMMSS(timeLeft / 1000)
-        if (isObjetive) {
-            binding.tvCronoReps.text = timeString
-        } else {
+        if (descanso) {
             binding.tvCronoTiempo.text = timeString
+        } else if (!isObjetive) {
+            binding.tvCronoTiempo.text = timeString
+        } else {
+            binding.tvCronoReps.text = timeString
         }
     }
 
     private fun updateRestingState(isResting: Boolean) {
         // Lógica para manejar cambios en el estado de descanso en la UI si es necesario
+        descanso = isResting
         if (isResting) {
+            descanso = true
             binding.tvCronoEstado.text = "Descansando..."
             updateBackgroundColor(R.color.resting_background)
+            showCrono()
         } else {
             if (!primero) {
                 binding.tvCronoEstado.text = viewModel.currentExercise.value?.Nombre ?: "Ejercicio"
@@ -127,6 +132,7 @@ class CronoFragment : Fragment() {
         binding.root.setBackgroundColor(ContextCompat.getColor(requireContext(), colorResId))
     }
     private var isObjetive = false
+    private var descanso = false
 
     private fun showCrono() {
         binding.layoutCrono.visibility = View.VISIBLE
