@@ -32,6 +32,11 @@ class CronoFragmentViewModel(
 
     private var exerciseIndex = 0
 
+    private enum class Stage { PREPARATION, EXERCISE, REST }
+    private var currentStage = Stage.PREPARATION
+
+    private var currentTimer: CountDownTimer? = null
+
     init {
         viewModelScope.launch {
             loadExercises()
@@ -57,28 +62,28 @@ class CronoFragmentViewModel(
     private fun startPreparation() {
         _timeLeft.value = 10L * 1000L // 10 segundos de preparación
         _isResting.value = false
+        currentStage = Stage.PREPARATION
 
-        val preparationTimer = object : CountDownTimer(_timeLeft.value ?: 0L, 1000L) {
+        currentTimer = object : CountDownTimer(_timeLeft.value ?: 0L, 1000L) {
             override fun onTick(millisUntilFinished: Long) {
                 _timeLeft.value = millisUntilFinished
-                Log.d(_TAG, "Cuenta regresiva: ${millisUntilFinished / 1000}")
+                //Log.d(_TAG, "Cuenta regresiva: ${millisUntilFinished / 1000}")
             }
 
             override fun onFinish() {
                 startExercise()
             }
-        }
-        preparationTimer.start()
+        }.also { it.start() }
     }
 
     private fun startExercise() {
         if (exerciseIndex < exerciseList.value?.size ?: 0) {
             _currentExercise.value = exerciseList.value?.get(exerciseIndex)
             _timeLeft.value = mmssToSeconds(_currentExercise.value?.DEjercicio ?: "00:00")
-            Log.d(_TAG, "Tiempo del ejercicio empezando: ${_currentExercise.value?.DEjercicio}, en segundos: ${_timeLeft.value}")
+            //Log.d(_TAG, "Tiempo del ejercicio empezando: ${_currentExercise.value?.DEjercicio}, en segundos: ${_timeLeft.value}")
             _isResting.value = false
-            _isResting.value = true
-            _isResting.value = false
+            currentStage = Stage.EXERCISE
+
             startExerciseTimer()
         } else {
             // Aquí podrías manejar el fin de la rutina o navegar a otro fragmento si es necesario
@@ -86,37 +91,52 @@ class CronoFragmentViewModel(
     }
 
     private fun startExerciseTimer() {
-        val exerciseTimer = object : CountDownTimer(_timeLeft.value ?: 0L, 1000L) {
+        currentTimer?.cancel()
+
+        currentTimer = object : CountDownTimer(_timeLeft.value ?: 0L, 1000L) {
             override fun onTick(millisUntilFinished: Long) {
                 _timeLeft.value = millisUntilFinished
-                Log.d(_TAG, "Ejercicio...: ${millisUntilFinished / 1000}")
-                Log.d(_TAG, "Formato cronometro: ${secondsToMMSS(millisUntilFinished / 1000)}")
+                //Log.d(_TAG, "Ejercicio...: ${millisUntilFinished / 1000}")
+                //Log.d(_TAG, "Formato cronometro: ${secondsToMMSS(millisUntilFinished / 1000)}")
             }
 
             override fun onFinish() {
                 startRest()
             }
-        }
-        exerciseTimer.start()
+        }.also { it.start() }
     }
 
     private fun startRest() {
         _isResting.value = true
         _timeLeft.value = mmssToSeconds(_currentExercise.value?.DDescanso ?: "00:00")
-        Log.d(_TAG, "Tiempo del descanso empezando: ${_currentExercise.value?.DDescanso}, en segundos: ${_timeLeft.value}")
+        //Log.d(_TAG, "Tiempo del descanso empezando: ${_currentExercise.value?.DDescanso}, en segundos: ${_timeLeft.value}")
+        currentStage = Stage.REST
 
-        val restTimer = object : CountDownTimer(_timeLeft.value ?: 0L, 1000L) {
+        currentTimer?.cancel()
+
+        currentTimer = object : CountDownTimer(_timeLeft.value ?: 0L, 1000L) {
             override fun onTick(millisUntilFinished: Long) {
                 _timeLeft.value = millisUntilFinished
-                Log.d(_TAG, "Descanso...: ${millisUntilFinished / 1000}")
+                //Log.d(_TAG, "Descanso...: ${millisUntilFinished / 1000}")
             }
 
             override fun onFinish() {
                 exerciseIndex++
                 startExercise()
             }
+        }.also { it.start() }
+    }
+
+    fun onNextStageButtonPressed() {
+        currentTimer?.cancel()
+        when (currentStage) {
+            Stage.PREPARATION -> startExercise()
+            Stage.EXERCISE -> startRest()
+            Stage.REST -> {
+                exerciseIndex++
+                startExercise()
+            }
         }
-        restTimer.start()
     }
 
     fun mmssToSeconds(timeMMSS: String): Long {
@@ -135,6 +155,7 @@ class CronoFragmentViewModel(
         return String.format("%02d:%02d", minutes, remainingSeconds)
     }
 }
+
 
 
 class CronoFragmentViewModelFactory(

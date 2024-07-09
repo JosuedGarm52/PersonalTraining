@@ -65,6 +65,10 @@ class CronoFragment : Fragment() {
         viewModel = ViewModelProvider(this, viewModelFactory)[CronoFragmentViewModel::class.java]
 
         observeViewModel()
+
+        binding.btnSiguiente.setOnClickListener {
+            viewModel.onNextStageButtonPressed()
+        }
     }
     private fun observeViewModel() {
         viewModel.currentExercise.observe(viewLifecycleOwner) { exercise ->
