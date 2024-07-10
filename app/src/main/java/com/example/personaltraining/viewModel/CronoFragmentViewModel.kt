@@ -30,22 +30,19 @@ class CronoFragmentViewModel(
     private val _exerciseList = MutableLiveData<List<Ejercicio>>()
     val exerciseList: LiveData<List<Ejercicio>> get() = _exerciseList
 
-    private var exerciseIndex = 0
-
     private enum class Stage { PREPARATION, EXERCISE, REST }
-    private var currentStage = Stage.PREPARATION
-
-    private var currentTimer: CountDownTimer? = null
+    private var exerciseIndex = 0
     private var preparationDone = false
+    private var currentStage = Stage.PREPARATION
+    private var currentTimer: CountDownTimer? = null
+    private var pausedTimeRemaining: Long = 0
+    var isPaused: Boolean = false
+        private set //solo aqui se puede modificar? Wow
 
     init {
         viewModelScope.launch {
             loadExercises()
         }
-    }
-
-    fun isInPreparation(): Boolean {
-        return currentStage == Stage.PREPARATION
     }
 
     private fun loadExercises() {
@@ -64,6 +61,10 @@ class CronoFragmentViewModel(
         }
     }
 
+    fun isInPreparation(): Boolean {
+        return currentStage == Stage.PREPARATION
+    }
+
     private fun startPreparation() {
         currentTimer?.cancel()
         _timeLeft.value = 10L * 1000L // 10 segundos de preparación
@@ -72,14 +73,21 @@ class CronoFragmentViewModel(
 
         currentTimer = object : CountDownTimer(_timeLeft.value ?: 0L, 1000L) {
             override fun onTick(millisUntilFinished: Long) {
-                _timeLeft.value = millisUntilFinished
+                if (isPaused) {
+                    pausedTimeRemaining = millisUntilFinished
+                    cancel()
+                } else {
+                    _timeLeft.value = millisUntilFinished
+                }
             }
 
             override fun onFinish() {
                 preparationDone = true
                 startExercise()
             }
-        }.also { it.start() }
+        }.also {
+            it.start()
+        }
     }
 
     private fun startExercise() {
@@ -93,15 +101,43 @@ class CronoFragmentViewModel(
 
             currentTimer = object : CountDownTimer(_timeLeft.value ?: 0L, 1000L) {
                 override fun onTick(millisUntilFinished: Long) {
-                    _timeLeft.value = millisUntilFinished
+                    if (isPaused) {
+                        pausedTimeRemaining = millisUntilFinished
+                        cancel()
+                    } else {
+                        _timeLeft.value = millisUntilFinished
+                    }
                 }
 
                 override fun onFinish() {
                     startRest()
                 }
-            }.also { it.start() }
+            }.also {
+                it.start()
+            }
         } else {
             // Manejar el fin de la rutina
+        }
+    }
+
+    private fun startExerciseTimer() {
+        currentTimer?.cancel()
+
+        currentTimer = object : CountDownTimer(_timeLeft.value ?: 0L, 1000L) {
+            override fun onTick(millisUntilFinished: Long) {
+                if (isPaused) {
+                    pausedTimeRemaining = millisUntilFinished
+                    cancel()
+                } else {
+                    _timeLeft.value = millisUntilFinished
+                }
+            }
+
+            override fun onFinish() {
+                startRest()
+            }
+        }.also {
+            it.start()
         }
     }
 
@@ -113,14 +149,21 @@ class CronoFragmentViewModel(
 
         currentTimer = object : CountDownTimer(_timeLeft.value ?: 0L, 1000L) {
             override fun onTick(millisUntilFinished: Long) {
-                _timeLeft.value = millisUntilFinished
+                if (isPaused) {
+                    pausedTimeRemaining = millisUntilFinished
+                    cancel()
+                } else {
+                    _timeLeft.value = millisUntilFinished
+                }
             }
 
             override fun onFinish() {
                 exerciseIndex++
                 startExercise()
             }
-        }.also { it.start() }
+        }.also {
+            it.start()
+        }
     }
 
     fun onNextStageButtonPressed() {
@@ -141,10 +184,8 @@ class CronoFragmentViewModel(
             Stage.EXERCISE -> {
                 if (exerciseIndex > 0) {
                     exerciseIndex--
-                    startRest()
-                } else {
-                    // Si es el primer ejercicio, no hacer nada.
-                    startExercise() // Mantenerse en el primer ejercicio
+                    currentStage = Stage.REST
+                    startRest() // Vuelve al descanso del ejercicio anterior
                 }
             }
             Stage.REST -> {
@@ -153,11 +194,25 @@ class CronoFragmentViewModel(
             }
             Stage.PREPARATION -> {
                 // No se hace nada porque ya estamos en la preparación
-                startPreparation() // Reiniciar preparación si ya estamos en ella
             }
         }
     }
 
+    fun onPauseButtonPressed() {
+        if (isPaused) {
+            // Reanudar el temporizador
+            isPaused = false
+            when (currentStage) {
+                Stage.PREPARATION -> startPreparation()
+                Stage.EXERCISE -> startExerciseTimer()
+                Stage.REST -> startRest()
+            }
+        } else {
+            // Pausar el temporizador
+            currentTimer?.cancel()
+            isPaused = true
+        }
+    }
 
     fun mmssToSeconds(timeMMSS: String): Long {
         val parts = timeMMSS.split(":")
@@ -175,8 +230,6 @@ class CronoFragmentViewModel(
         return String.format("%02d:%02d", minutes, remainingSeconds)
     }
 }
-
-
 
 class CronoFragmentViewModelFactory(
     private val rutinasRepository: RutinasRepository,

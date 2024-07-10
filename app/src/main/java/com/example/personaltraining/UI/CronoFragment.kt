@@ -7,6 +7,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ImageButton
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
@@ -71,6 +73,10 @@ class CronoFragment : Fragment() {
         }
         binding.btnAnterior.setOnClickListener {
             viewModel.onPreviousStageButtonPressed()
+        }
+        binding.btnPausa.setOnClickListener {
+            viewModel.onPauseButtonPressed()
+            updatePauseButtonUI(binding.btnPausa) // Método para actualizar el UI del botón
         }
     }
     private fun observeViewModel() {
@@ -138,6 +144,18 @@ class CronoFragment : Fragment() {
     private fun updateBackgroundColor(colorResId: Int) {
         binding.root.setBackgroundColor(ContextCompat.getColor(requireContext(), colorResId))
     }
+
+    // Método para actualizar el UI del botón de pausa
+    private fun updatePauseButtonUI(yourPauseButton : ImageButton) {
+        if (viewModel.isPaused) {
+            // Cambiar a ícono de reanudar y texto de reanudar
+            yourPauseButton.setImageResource(R.drawable.ic_play_arrow)
+        } else {
+            // Cambiar a ícono de pausa y texto de pausa
+            yourPauseButton.setImageResource(R.drawable.ic_pause)
+        }
+    }
+
     private var isObjetive = false
     private var descanso = false
 
