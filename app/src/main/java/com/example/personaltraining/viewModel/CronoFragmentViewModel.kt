@@ -123,27 +123,6 @@ class CronoFragmentViewModel(
         }
     }
 
-    private fun startExerciseTimer() {
-        currentTimer?.cancel()
-
-        currentTimer = object : CountDownTimer(_timeLeft.value ?: 0L, 1000L) {
-            override fun onTick(millisUntilFinished: Long) {
-                if (isPaused) {
-                    pausedTimeRemaining = millisUntilFinished
-                    cancel()
-                } else {
-                    _timeLeft.value = millisUntilFinished
-                }
-            }
-
-            override fun onFinish() {
-                startRest()
-            }
-        }.also {
-            it.start()
-        }
-    }
-
     private fun startRest() {
         currentTimer?.cancel()
         _isResting.value = true
@@ -189,6 +168,9 @@ class CronoFragmentViewModel(
                     exerciseIndex--
                     currentStage = Stage.REST
                     startRest() // Vuelve al descanso del ejercicio anterior
+                } else {
+                    // Si está en el primer ejercicio, no hacer nada
+                    startExercise()
                 }
             }
             Stage.REST -> {
@@ -196,50 +178,72 @@ class CronoFragmentViewModel(
                 startExercise() // Vuelve al ejercicio actual
             }
             Stage.PREPARATION -> {
-                // No se hace nada porque ya estamos en la preparación
+                startPreparation()
             }
         }
     }
 
     fun onPauseButtonPressed() {
         if (isPaused) {
-            // Reanudar el temporizador
+            // Reanudar el temporizador desde el tiempo pausado
             isPaused = false
-            when (currentStage) {
-                Stage.PREPARATION -> startPreparation()
-                Stage.EXERCISE -> startExerciseTimer()
-                Stage.REST -> startRest()
-            }
+            currentTimer = object : CountDownTimer(pausedTimeRemaining, 1000L) {
+                override fun onTick(millisUntilFinished: Long) {
+                    if (isPaused) {
+                        pausedTimeRemaining = millisUntilFinished
+                        cancel()
+                    } else {
+                        _timeLeft.value = millisUntilFinished
+                    }
+                }
+
+                override fun onFinish() {
+                    when (currentStage) {
+                        Stage.PREPARATION -> startExercise()
+                        Stage.EXERCISE -> startRest()
+                        Stage.REST -> {
+                            exerciseIndex++
+                            startExercise()
+                        }
+                    }
+                }
+            }.also { it.start() }
         } else {
             // Pausar el temporizador
             currentTimer?.cancel()
+            pausedTimeRemaining = _timeLeft.value ?: 0L // Guardar el tiempo restante
             isPaused = true
         }
     }
 
-    fun addSecondsToTimer(secondsToAdd: Long) {
-        if (isAddingSeconds) {
-            // Si ya se está agregando tiempo, salir temprano para evitar conflictos
-            return
+    fun addSecondsToTimer(seconds: Long) {
+        if (isPaused) {
+            pausedTimeRemaining += seconds * 1000L
+        } else {
+            currentTimer?.cancel()
+            _timeLeft.value = (_timeLeft.value ?: 0L) + seconds * 1000L
+            currentTimer = object : CountDownTimer(_timeLeft.value ?: 0L, 1000L) {
+                override fun onTick(millisUntilFinished: Long) {
+                    if (isPaused) {
+                        pausedTimeRemaining = millisUntilFinished
+                        cancel()
+                    } else {
+                        _timeLeft.value = millisUntilFinished
+                    }
+                }
+
+                override fun onFinish() {
+                    when (currentStage) {
+                        Stage.PREPARATION -> startExercise()
+                        Stage.EXERCISE -> startRest()
+                        Stage.REST -> {
+                            exerciseIndex++
+                            startExercise()
+                        }
+                    }
+                }
+            }.also { it.start() }
         }
-
-        isAddingSeconds = true
-        currentTimer?.cancel() // Cancelar el temporizador actual
-
-        val currentTimerValue = _timeLeft.value ?: 0L
-        val newTimeLeft = currentTimerValue + (secondsToAdd * 1000)
-
-        _timeLeft.value = newTimeLeft
-
-        // Reiniciar el temporizador con el nuevo tiempo después de un breve intervalo
-        Handler(Looper.getMainLooper()).postDelayed({
-            when (currentStage) {
-                Stage.PREPARATION -> startPreparation()
-                Stage.EXERCISE -> startExerciseTimer()
-                Stage.REST -> startRest()
-            }
-            isAddingSeconds = false // Restaurar la bandera después de completar la operación
-        }, 500) // Esperar 500 milisegundos antes de reanudar el temporizador
     }
 
 
