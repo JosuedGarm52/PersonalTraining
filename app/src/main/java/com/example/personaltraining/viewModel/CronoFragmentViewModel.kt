@@ -1,6 +1,8 @@
 package com.example.personaltraining.viewModel
 
 import android.os.CountDownTimer
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -38,6 +40,7 @@ class CronoFragmentViewModel(
     private var pausedTimeRemaining: Long = 0
     var isPaused: Boolean = false
         private set //solo aqui se puede modificar? Wow
+    private var isAddingSeconds = false
 
     init {
         viewModelScope.launch {
@@ -213,6 +216,32 @@ class CronoFragmentViewModel(
             isPaused = true
         }
     }
+
+    fun addSecondsToTimer(secondsToAdd: Long) {
+        if (isAddingSeconds) {
+            // Si ya se está agregando tiempo, salir temprano para evitar conflictos
+            return
+        }
+
+        isAddingSeconds = true
+        currentTimer?.cancel() // Cancelar el temporizador actual
+
+        val currentTimerValue = _timeLeft.value ?: 0L
+        val newTimeLeft = currentTimerValue + (secondsToAdd * 1000)
+
+        _timeLeft.value = newTimeLeft
+
+        // Reiniciar el temporizador con el nuevo tiempo después de un breve intervalo
+        Handler(Looper.getMainLooper()).postDelayed({
+            when (currentStage) {
+                Stage.PREPARATION -> startPreparation()
+                Stage.EXERCISE -> startExerciseTimer()
+                Stage.REST -> startRest()
+            }
+            isAddingSeconds = false // Restaurar la bandera después de completar la operación
+        }, 500) // Esperar 500 milisegundos antes de reanudar el temporizador
+    }
+
 
     fun mmssToSeconds(timeMMSS: String): Long {
         val parts = timeMMSS.split(":")

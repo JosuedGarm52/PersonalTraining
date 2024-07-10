@@ -78,6 +78,10 @@ class CronoFragment : Fragment() {
             viewModel.onPauseButtonPressed()
             updatePauseButtonUI(binding.btnPausa) // Método para actualizar el UI del botón
         }
+        binding.btnMasCinco.setOnClickListener {
+            val cincoSegundo : Long = 5
+            viewModel.addSecondsToTimer(cincoSegundo)
+        }
     }
     private fun observeViewModel() {
         viewModel.currentExercise.observe(viewLifecycleOwner) { exercise ->
