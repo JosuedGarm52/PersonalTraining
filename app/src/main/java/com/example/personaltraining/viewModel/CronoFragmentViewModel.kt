@@ -36,11 +36,16 @@ class CronoFragmentViewModel(
     private var currentStage = Stage.PREPARATION
 
     private var currentTimer: CountDownTimer? = null
+    private var preparationDone = false
 
     init {
         viewModelScope.launch {
             loadExercises()
         }
+    }
+
+    fun isInPreparation(): Boolean {
+        return currentStage == Stage.PREPARATION
     }
 
     private fun loadExercises() {
@@ -60,6 +65,7 @@ class CronoFragmentViewModel(
     }
 
     private fun startPreparation() {
+        currentTimer?.cancel()
         _timeLeft.value = 10L * 1000L // 10 segundos de preparación
         _isResting.value = false
         currentStage = Stage.PREPARATION
@@ -67,57 +73,47 @@ class CronoFragmentViewModel(
         currentTimer = object : CountDownTimer(_timeLeft.value ?: 0L, 1000L) {
             override fun onTick(millisUntilFinished: Long) {
                 _timeLeft.value = millisUntilFinished
-                //Log.d(_TAG, "Cuenta regresiva: ${millisUntilFinished / 1000}")
             }
 
             override fun onFinish() {
+                preparationDone = true
                 startExercise()
             }
         }.also { it.start() }
     }
 
     private fun startExercise() {
+        currentTimer?.cancel()
+        preparationDone = true
         if (exerciseIndex < exerciseList.value?.size ?: 0) {
             _currentExercise.value = exerciseList.value?.get(exerciseIndex)
             _timeLeft.value = mmssToSeconds(_currentExercise.value?.DEjercicio ?: "00:00")
-            //Log.d(_TAG, "Tiempo del ejercicio empezando: ${_currentExercise.value?.DEjercicio}, en segundos: ${_timeLeft.value}")
             _isResting.value = false
             currentStage = Stage.EXERCISE
 
-            startExerciseTimer()
+            currentTimer = object : CountDownTimer(_timeLeft.value ?: 0L, 1000L) {
+                override fun onTick(millisUntilFinished: Long) {
+                    _timeLeft.value = millisUntilFinished
+                }
+
+                override fun onFinish() {
+                    startRest()
+                }
+            }.also { it.start() }
         } else {
-            // Aquí podrías manejar el fin de la rutina o navegar a otro fragmento si es necesario
+            // Manejar el fin de la rutina
         }
     }
 
-    private fun startExerciseTimer() {
-        currentTimer?.cancel()
-
-        currentTimer = object : CountDownTimer(_timeLeft.value ?: 0L, 1000L) {
-            override fun onTick(millisUntilFinished: Long) {
-                _timeLeft.value = millisUntilFinished
-                //Log.d(_TAG, "Ejercicio...: ${millisUntilFinished / 1000}")
-                //Log.d(_TAG, "Formato cronometro: ${secondsToMMSS(millisUntilFinished / 1000)}")
-            }
-
-            override fun onFinish() {
-                startRest()
-            }
-        }.also { it.start() }
-    }
-
     private fun startRest() {
+        currentTimer?.cancel()
         _isResting.value = true
         _timeLeft.value = mmssToSeconds(_currentExercise.value?.DDescanso ?: "00:00")
-        //Log.d(_TAG, "Tiempo del descanso empezando: ${_currentExercise.value?.DDescanso}, en segundos: ${_timeLeft.value}")
         currentStage = Stage.REST
-
-        currentTimer?.cancel()
 
         currentTimer = object : CountDownTimer(_timeLeft.value ?: 0L, 1000L) {
             override fun onTick(millisUntilFinished: Long) {
                 _timeLeft.value = millisUntilFinished
-                //Log.d(_TAG, "Descanso...: ${millisUntilFinished / 1000}")
             }
 
             override fun onFinish() {
@@ -138,6 +134,30 @@ class CronoFragmentViewModel(
             }
         }
     }
+
+    fun onPreviousStageButtonPressed() {
+        currentTimer?.cancel()
+        when (currentStage) {
+            Stage.EXERCISE -> {
+                if (exerciseIndex > 0) {
+                    exerciseIndex--
+                    startRest()
+                } else {
+                    // Si es el primer ejercicio, no hacer nada.
+                    startExercise() // Mantenerse en el primer ejercicio
+                }
+            }
+            Stage.REST -> {
+                currentStage = Stage.EXERCISE
+                startExercise() // Vuelve al ejercicio actual
+            }
+            Stage.PREPARATION -> {
+                // No se hace nada porque ya estamos en la preparación
+                startPreparation() // Reiniciar preparación si ya estamos en ella
+            }
+        }
+    }
+
 
     fun mmssToSeconds(timeMMSS: String): Long {
         val parts = timeMMSS.split(":")

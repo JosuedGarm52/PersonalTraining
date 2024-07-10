@@ -69,6 +69,9 @@ class CronoFragment : Fragment() {
         binding.btnSiguiente.setOnClickListener {
             viewModel.onNextStageButtonPressed()
         }
+        binding.btnAnterior.setOnClickListener {
+            viewModel.onPreviousStageButtonPressed()
+        }
     }
     private fun observeViewModel() {
         viewModel.currentExercise.observe(viewLifecycleOwner) { exercise ->
@@ -102,7 +105,11 @@ class CronoFragment : Fragment() {
     private fun updateTimeLeft(timeLeft: Long) {
         // Actualizar el tiempo restante en la UI
         val timeString = viewModel.secondsToMMSS(timeLeft / 1000)
-        if (descanso) {
+        if (viewModel.isInPreparation()) {
+            binding.tvCronoEstado.text = "Preparación..."
+            updateBackgroundColor(R.color.orange)
+            binding.tvCronoTiempo.text = timeString
+        } else if (descanso) {
             binding.tvCronoTiempo.text = timeString
         } else if (!isObjetive) {
             binding.tvCronoTiempo.text = timeString
@@ -115,7 +122,6 @@ class CronoFragment : Fragment() {
         // Lógica para manejar cambios en el estado de descanso en la UI si es necesario
         descanso = isResting
         if (isResting) {
-            descanso = true
             binding.tvCronoEstado.text = "Descansando..."
             updateBackgroundColor(R.color.resting_background)
             showCrono()
@@ -127,6 +133,7 @@ class CronoFragment : Fragment() {
             primero = false
         }
     }
+
 
     private fun updateBackgroundColor(colorResId: Int) {
         binding.root.setBackgroundColor(ContextCompat.getColor(requireContext(), colorResId))
