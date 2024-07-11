@@ -1,25 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        tools:context=".ResultFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="16dp">
 
         <TextView
+            android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Bien hecho, terminaste tu rutina en: ...">
+            android:text="¡Bien hecho!"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:layout_marginBottom="16dp" />
 
-        </TextView>
+        <TextView
+            android:id="@+id/tvMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Terminaste tu rutina en:"
+            android:textSize="20sp"
+            android:textColor="@color/black"
+            android:layout_marginBottom="24dp" />
 
         <TextView
             android:id="@+id/textViewElapsedTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{String.format(@string/elapsed_time_format, args.elapsedTimeMillis)}"
-            android:textSize="24sp" />
+            android:text="00:00:00"
+            android:textSize="48sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:layout_marginBottom="32dp" />
 
-        <!-- Otros elementos de UI según sea necesario -->
+        <Button
+            android:id="@+id/btnReturn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Volver"
+            android:backgroundTint="@color/blue"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="24dp"
+            android:onClick="onReturnButtonClicked"/>
 
-    </FrameLayout>
-</layout>
+    </LinearLayout>
+
+</FrameLayout>
+    </layout>

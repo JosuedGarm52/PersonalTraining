@@ -21,13 +21,14 @@ import com.example.personaltraining.databinding.CronoFragmentBinding
 import com.example.personaltraining.model.Ejercicio
 import com.example.personaltraining.viewModel.CronoFragmentViewModel
 import com.example.personaltraining.viewModel.CronoFragmentViewModelFactory
+import com.example.personaltraining.viewModel.NavigationListener
 
 /**
  * A simple [Fragment] subclass.
  * Use the [CronoFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class CronoFragment : Fragment() {
+class CronoFragment : Fragment(), NavigationListener {
     private var _binding: CronoFragmentBinding? = null
 
     // This property is only valid between onCreateView and
@@ -67,6 +68,9 @@ class CronoFragment : Fragment() {
         viewModel = ViewModelProvider(this, viewModelFactory)[CronoFragmentViewModel::class.java]
 
         observeViewModel()
+
+        // Configura el NavigationListener
+        viewModel.setNavigationListener(this)
 
         binding.btnSiguiente.setOnClickListener {
             viewModel.onNextStageButtonPressed()
@@ -171,6 +175,13 @@ class CronoFragment : Fragment() {
     private fun showReps() {
         binding.layoutCrono.visibility = View.GONE
         binding.layoutReps.visibility = View.VISIBLE
+    }
+
+    // Implementación de la interfaz NavigationListener
+    override fun navigateToResultFragment(elapsedTimeInMillis: Long) {
+        Log.d("ResultFragment", "Navigating to ResultFragment")
+        val action = CronoFragmentDirections.actionCronoFragmentToResultFragment(elapsedTimeInMillis)
+        findNavController().navigate(action)
     }
 
     override fun onDestroyView() {

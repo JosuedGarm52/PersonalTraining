@@ -1,6 +1,7 @@
 package com.example.personaltraining.UI
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -20,7 +21,7 @@ import com.example.personaltraining.viewModel.ResultViewModel
  * Use the [ResultFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class ResultFragment : Fragment(), NavigationListener {
+class ResultFragment : Fragment() {
 
     private var _binding: ResultFragmentBinding? = null
     private val binding get() = _binding!!
@@ -41,6 +42,11 @@ class ResultFragment : Fragment(), NavigationListener {
         val elapsedTimeInMillis = args.elapsedTimeMillis
         val formattedTime = formatTime(elapsedTimeInMillis)
         binding.textViewElapsedTime.text = formattedTime
+
+        binding.btnReturn.setOnClickListener {
+            val action = ResultFragmentDirections.actionResultFragmentToListRecyclerFragment()
+            findNavController().navigate(action)
+        }
     }
 
     private fun formatTime(milliseconds: Long): String {
@@ -49,11 +55,6 @@ class ResultFragment : Fragment(), NavigationListener {
         return String.format("%02d:%02d", minutes, seconds)
     }
 
-    // Implementación de la interfaz NavigationListener
-    override fun navigateToResultFragment(elapsedTimeInMillis: Long) {
-        val action = CronoFragmentDirections.actionCronoFragmentToResultFragment(elapsedTimeInMillis)
-        findNavController().navigate(action)
-    }
 
     override fun onDestroyView() {
         super.onDestroyView()

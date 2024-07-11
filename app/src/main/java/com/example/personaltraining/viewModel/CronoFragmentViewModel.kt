@@ -138,6 +138,7 @@ class CronoFragmentViewModel(
             }
         } else {
             // Manejar el fin de la rutina
+            Log.d(_TAG, "Fin de la rutina")
             val elapsedTimeInMillis : Long = getTotalElapsedTimeInMillis()
             navigationListener?.navigateToResultFragment(elapsedTimeInMillis)
         }
