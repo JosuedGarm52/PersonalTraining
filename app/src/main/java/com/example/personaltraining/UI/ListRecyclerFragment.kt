@@ -15,11 +15,11 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.personaltraining.R
 import com.example.personaltraining.adapter.RutinasAdapter
+import com.example.personaltraining.appFiles.FileManager
 import com.example.personaltraining.application.RutinasApplication
 import com.example.personaltraining.databinding.ListRecyclerFragmentBinding
 import com.example.personaltraining.model.Rutina
 import com.example.personaltraining.viewModel.ListRecyclerFragmentViewModelFactory
-import com.example.personaltraining.repository.RutinasRepository
 import com.example.personaltraining.viewModel.ListRecyclerFragmentViewModel
 
 /**
@@ -28,6 +28,7 @@ import com.example.personaltraining.viewModel.ListRecyclerFragmentViewModel
 class ListRecyclerFragment : Fragment() {
 
     private var _binding: ListRecyclerFragmentBinding? = null
+    private val fileManager by lazy { FileManager(requireContext()) }
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -54,6 +55,9 @@ class ListRecyclerFragment : Fragment() {
         binding.buttonFirst.setOnClickListener {
             findNavController().navigate(R.id.action_ListRecyclerFragment_to_AddEjerFragment)
         }*/
+
+        // Verificar y crear la carpeta personalTraining si no existe
+        fileManager.getMediaDirectory()
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
