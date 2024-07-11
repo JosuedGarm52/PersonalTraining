@@ -13,6 +13,7 @@ import com.example.personaltraining.model.Ejercicio
 import com.example.personaltraining.repository.RutinasRepository
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
+import com.example.personaltraining.UI.CronoFragmentDirections
 
 class CronoFragmentViewModel(
     private val rutinasRepository: RutinasRepository,
@@ -42,9 +43,14 @@ class CronoFragmentViewModel(
         private set //solo aqui se puede modificar? Wow
     private var isAddingSeconds = false
 
+    private var startTime: Long = 0L
+    private var elapsedTime: Long = 0L
+    private var isTimerRunning = false
+
     init {
         viewModelScope.launch {
             loadExercises()
+            startTime = System.currentTimeMillis()
         }
     }
 
@@ -69,6 +75,9 @@ class CronoFragmentViewModel(
     }
 
     private fun startPreparation() {
+        // Iniciar el temporizador global al comenzar la preparación
+        startTimer()
+
         currentTimer?.cancel()
         _timeLeft.value = 10L * 1000L // 10 segundos de preparación
         _isResting.value = false
@@ -93,7 +102,11 @@ class CronoFragmentViewModel(
         }
     }
 
+    //BUG: durante el ejercicio y es por objetivo y pulsa en mas cinco al acabarse pasa a la siguiente etapa, si no lo pulsas si se detiene como se espera
     private fun startExercise() {
+        // Iniciar el temporizador global al comenzar la preparación
+        startTimer()
+
         currentTimer?.cancel()
         preparationDone = true
         if (exerciseIndex < exerciseList.value?.size ?: 0) {
@@ -101,6 +114,8 @@ class CronoFragmentViewModel(
             _timeLeft.value = mmssToSeconds(_currentExercise.value?.DEjercicio ?: "00:00")
             _isResting.value = false
             currentStage = Stage.EXERCISE
+
+            val isObjetivo = _currentExercise.value?.isObjetivo ?: false
 
             currentTimer = object : CountDownTimer(_timeLeft.value ?: 0L, 1000L) {
                 override fun onTick(millisUntilFinished: Long) {
@@ -113,17 +128,25 @@ class CronoFragmentViewModel(
                 }
 
                 override fun onFinish() {
-                    startRest()
+                    if (!isObjetivo) {
+                        startRest()
+                    }
+                    // No se inicia el descanso automáticamente si es objetivo
                 }
             }.also {
                 it.start()
             }
         } else {
             // Manejar el fin de la rutina
+            val elapsedTimeInMillis : Long = getTotalElapsedTimeInMillis()
+            navigationListener?.navigateToResultFragment(elapsedTimeInMillis)
         }
     }
 
     private fun startRest() {
+        // Iniciar el temporizador global al comenzar el descanso
+        startTimer()
+
         currentTimer?.cancel()
         _isResting.value = true
         _timeLeft.value = mmssToSeconds(_currentExercise.value?.DDescanso ?: "00:00")
@@ -149,6 +172,9 @@ class CronoFragmentViewModel(
     }
 
     fun onNextStageButtonPressed() {
+        // Detener el temporizador global cuando se avanza al siguiente estado
+        stopTimer()
+
         currentTimer?.cancel()
         when (currentStage) {
             Stage.PREPARATION -> startExercise()
@@ -161,6 +187,9 @@ class CronoFragmentViewModel(
     }
 
     fun onPreviousStageButtonPressed() {
+        // Detener el temporizador global cuando se avanza al siguiente estado
+        stopTimer()
+
         currentTimer?.cancel()
         when (currentStage) {
             Stage.EXERCISE -> {
@@ -262,6 +291,52 @@ class CronoFragmentViewModel(
         val remainingSeconds = seconds % 60
         return String.format("%02d:%02d", minutes, remainingSeconds)
     }
+
+    // Función para iniciar el temporizador
+    fun startTimer() {
+        if (!isTimerRunning) {
+            startTime = System.currentTimeMillis()
+            isTimerRunning = true
+        }
+    }
+
+    // Función para detener el temporizador
+    fun stopTimer() {
+        if (isTimerRunning) {
+            val endTime = System.currentTimeMillis()
+            elapsedTime += endTime - startTime
+            isTimerRunning = false
+        }
+    }
+
+    // Función para obtener el tiempo transcurrido formateado
+    fun getElapsedTimeFormatted(): String {
+        val seconds = elapsedTime / 1000
+        val minutes = seconds / 60
+        val remainderSeconds = seconds % 60
+        return String.format("%02d:%02d", minutes, remainderSeconds)
+    }
+
+    // Función para reiniciar el temporizador
+    fun resetTimer() {
+        elapsedTime = 0L
+        isTimerRunning = false
+    }
+
+    // Función para obtener el tiempo total transcurrido en milisegundos
+    fun getTotalElapsedTimeInMillis(): Long {
+        return elapsedTime
+    }
+
+    private var navigationListener: NavigationListener? = null
+
+    fun setNavigationListener(listener: NavigationListener) {
+        navigationListener = listener
+    }
+}
+
+interface NavigationListener {
+    fun navigateToResultFragment(elapsedTimeInMillis: Long)
 }
 
 class CronoFragmentViewModelFactory(

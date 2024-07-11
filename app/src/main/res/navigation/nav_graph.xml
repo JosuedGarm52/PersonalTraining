@@ -18,6 +18,9 @@
             app:destination="@id/EditEjerFragment" />
         <action android:id="@+id/action_ListRecyclerFragment_to_CronoFragment"
             app:destination="@id/CronoFragment" />
+        <action
+            android:id="@+id/action_ListRecyclerFragment_to_ResultFragment"
+            app:destination="@id/ResultFragment" />
     </fragment>
     <fragment
         android:id="@+id/AddEjerFragment"
@@ -55,6 +58,26 @@
             android:name="ID"
             app:argType="integer"
             android:defaultValue="0" />
+        <action
+            android:id="@+id/action_CronoFragment_to_ResultFragment"
+            app:destination="@id/ResultFragment" />
+    </fragment>
+
+    <fragment android:id="@+id/ResultFragment"
+        android:name="com.example.personaltraining.UI.ResultFragment"
+        android:label="Result Frag"
+        tools:layout="@layout/result_fragment">
+        <argument
+            android:name="elapsedTimeMillis"
+            app:argType="long"
+            android:defaultValue="0L" />
+
+        <action
+            android:id="@+id/action_ResultFragment_to_ListRecyclerFragment"
+            app:destination="@id/ListRecyclerFragment" />
+        <action
+            android:id="@+id/action_ResultFragment_to_CronoFragment"
+            app:destination="@id/CronoFragment" />
     </fragment>
 
 </navigation>
