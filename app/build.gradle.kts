@@ -76,4 +76,11 @@ dependencies {
     ksp("androidx.room:room-compiler:$room_version")
 
     implementation("com.github.chthai64:SwipeRevealLayout:1.4.0")
+
+    val glideVersion = "4.12.0"
+    val urlGLide = "com.github.bumptech.glide:glide:$glideVersion"
+
+    implementation(urlGLide)
+    ksp(urlGLide)
+
 }

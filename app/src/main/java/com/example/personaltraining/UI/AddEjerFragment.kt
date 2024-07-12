@@ -104,7 +104,7 @@ class AddEjerFragment : Fragment() {
 
         binding.btnAsignar.setOnClickListener {
             if(binding.edtNombreRutina.text.toString().isNotEmpty()){
-                binding.imgCargar.isEnabled = true
+                //binding.imgCargar.isEnabled = true
                 binding.edtNombreEjercicio.isEnabled = true
                 binding.edtimeDuracionEjercicio.isEnabled = true
                 binding.edtimeDuracionDescanso.isEnabled = true
