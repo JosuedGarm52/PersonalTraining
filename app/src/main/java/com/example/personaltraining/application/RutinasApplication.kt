@@ -6,5 +6,5 @@ import com.example.personaltraining.repository.RutinasRepository
 
 class RutinasApplication : Application() {
     val database by lazy { RutinasDatabase.getDatabase(this) }
-    val repository by lazy { RutinasRepository(database.ejercicioDAO(), database.rutinaDAO()) }
+    val repository by lazy { RutinasRepository(database.ejercicioDAO(), database.rutinaDAO(), database.mediaDao()) }
 }

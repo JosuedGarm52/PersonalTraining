@@ -5,13 +5,15 @@ import androidx.annotation.WorkerThread
 import androidx.room.Transaction
 import com.example.personaltraining.model.Ejercicio
 import com.example.personaltraining.model.EjercicioDao
+import com.example.personaltraining.model.MediaDao
 import com.example.personaltraining.model.Rutina
 import com.example.personaltraining.model.RutinaDao
 import kotlinx.coroutines.flow.Flow
 
 class RutinasRepository (
     private val ejercicioDao: EjercicioDao,
-    private val rutinaDao: RutinaDao
+    private val rutinaDao: RutinaDao,
+    private val mediaDao: MediaDao
 ) {
 
     // Inserta la rutina y retorna el ID generado
