@@ -5,6 +5,7 @@ import androidx.annotation.WorkerThread
 import androidx.room.Transaction
 import com.example.personaltraining.model.Ejercicio
 import com.example.personaltraining.model.EjercicioDao
+import com.example.personaltraining.model.Media
 import com.example.personaltraining.model.MediaDao
 import com.example.personaltraining.model.Rutina
 import com.example.personaltraining.model.RutinaDao
@@ -55,6 +56,10 @@ class RutinasRepository (
     suspend fun insertEjercicios(ejercicios: List<Ejercicio>) {
         ejercicioDao.insertAll(ejercicios)
     }
+    @WorkerThread
+    suspend fun updateEjercicio(ejercicio: Ejercicio) {
+        ejercicioDao.insert(ejercicio)
+    }
 
     @Transaction
     suspend fun deleteRutina(rutinaId: Int) {
@@ -79,5 +84,21 @@ class RutinasRepository (
         } catch (e: Exception) {
             Log.e("RutinasRepository", "Error deleting rutina and exercises: ${e.message}", e)
         }
+    }
+
+    suspend fun getMediaForExercise(ejercicioId: Int): List<Media> {
+        return mediaDao.getMediaForExercise(ejercicioId)
+    }
+    suspend fun insertMedia(media: Media): Long {
+        return mediaDao.insertMedia(media)
+    }
+    suspend fun updateMedia(media: Media) {
+        mediaDao.updateMedia(media)
+    }
+    suspend fun deleteMedia(media: Media) {
+        mediaDao.deleteMedia(media)
+    }
+    suspend fun deleteMediaByEjercicioId(ejercicioId: Int) {
+        mediaDao.deleteMediaByEjercicioId(ejercicioId)
     }
 }

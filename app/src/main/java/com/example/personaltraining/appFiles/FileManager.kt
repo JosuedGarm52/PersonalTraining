@@ -13,7 +13,7 @@ class FileManager(private val context: Context) {
 
     // Directorio para almacenar media
     private val mediaDir: File by lazy {
-        File(context.filesDir, "personalTraining").apply {
+        File(context.filesDir, "personalTraining/datos").apply {
             if (!exists()) {
                 try {
                     mkdirs()
@@ -32,20 +32,20 @@ class FileManager(private val context: Context) {
 
 
     // Función para copiar un archivo a almacenamiento privado
-    fun copyFileToPrivateStorage(uri: Uri): File? {
-        try {
+    fun copyFileToPrivateStorage(uri: Uri, customFileName: String? = null): File? {
+        return try {
             val inputStream = context.contentResolver.openInputStream(uri)
-            val fileName = uri.lastPathSegment ?: "temp_file"
+            val fileName = customFileName ?: uri.lastPathSegment ?: "temp_file"
             val destinationFile = File(mediaDir, fileName)
             inputStream.use { input ->
                 destinationFile.outputStream().use { output ->
                     input?.copyTo(output)
                 }
             }
-            return destinationFile
+            destinationFile
         } catch (e: Exception) {
             Log.e(tag, "Error al copiar archivo a almacenamiento privado", e)
-            return null
+            null
         }
     }
 

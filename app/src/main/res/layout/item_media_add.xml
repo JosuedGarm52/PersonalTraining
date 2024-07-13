@@ -10,8 +10,13 @@
         android:id="@+id/imageViewMedia"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:scaleType="centerCrop"/>
+        android:scaleType="fitCenter"
+        android:adjustViewBounds="true" />
 
-    <!-- Aquí puedes agregar otros elementos como video views si es necesario -->
+    <VideoView
+        android:id="@+id/videoViewMedia"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
 
 </LinearLayout>
