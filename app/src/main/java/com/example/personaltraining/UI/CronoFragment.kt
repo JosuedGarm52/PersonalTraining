@@ -2,6 +2,8 @@ package com.example.personaltraining.UI
 
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -15,10 +17,14 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.viewpager2.widget.ViewPager2
 import com.example.personaltraining.R
+import com.example.personaltraining.adapter.MediaItem
+import com.example.personaltraining.adapter.MediaPagerAdapter
 import com.example.personaltraining.application.RutinasApplication
 import com.example.personaltraining.databinding.CronoFragmentBinding
 import com.example.personaltraining.model.Ejercicio
+import com.example.personaltraining.model.MediaTipo
 import com.example.personaltraining.viewModel.CronoFragmentViewModel
 import com.example.personaltraining.viewModel.CronoFragmentViewModelFactory
 import com.example.personaltraining.viewModel.NavigationListener
@@ -41,6 +47,9 @@ class CronoFragment : Fragment(), NavigationListener {
 
     private lateinit var viewModel: CronoFragmentViewModel
     private lateinit var viewModelFactory: CronoFragmentViewModelFactory
+    private lateinit var mediaPagerAdapter: MediaPagerAdapter
+    private lateinit var viewPager: ViewPager2
+
 
     private var timer: CountDownTimer? = null // Temporizador para el cronómetro
 
@@ -66,6 +75,29 @@ class CronoFragment : Fragment(), NavigationListener {
         val repository = (requireActivity().application as RutinasApplication).repository
         viewModelFactory = CronoFragmentViewModelFactory(repository, args.ID)
         viewModel = ViewModelProvider(this, viewModelFactory)[CronoFragmentViewModel::class.java]
+
+        viewPager = binding.viewPagerMedia
+        mediaPagerAdapter = MediaPagerAdapter(emptyList())
+        viewPager.adapter = mediaPagerAdapter
+
+        viewModel.mediaList.observe(viewLifecycleOwner) { mediaList ->
+            // Mapea la lista de Media a MediaItem
+            val mediaItems = mediaList.map { media ->
+                when (media.tipo) {
+                    MediaTipo.IMAGE, MediaTipo.GIF, MediaTipo.IMAGE_SEQUENCE -> MediaItem.Image(media.ruta)
+                    MediaTipo.VIDEO -> MediaItem.Video(media.ruta)
+                }
+            }
+
+            // Crea el adaptador con la nueva lista de MediaItem
+            mediaPagerAdapter = MediaPagerAdapter(mediaItems)
+            viewPager.adapter = mediaPagerAdapter
+
+            // Inicia el auto-scroll si la lista no está vacía
+            if (mediaItems.isNotEmpty()) {
+                startAutoScroll()
+            }
+        }
 
         observeViewModel()
 
@@ -110,6 +142,7 @@ class CronoFragment : Fragment(), NavigationListener {
             } else {
                 showCrono()
             }
+            viewModel.loadMediaForCurrentExercise(it.ID)
         } ?: run {
             // Manejar caso donde exercise es nulo si es necesario
             showCrono() // Mostrar por defecto el cronómetro si no hay ejercicio actual
@@ -182,6 +215,22 @@ class CronoFragment : Fragment(), NavigationListener {
         Log.d("ResultFragment", "Navigating to ResultFragment")
         val action = CronoFragmentDirections.actionCronoFragmentToResultFragment(elapsedTimeInMillis)
         findNavController().navigate(action)
+    }
+
+    private fun startAutoScroll() {
+        val handler = Handler(Looper.getMainLooper())
+        val runnable = object : Runnable {
+            override fun run() {
+                val itemCount = mediaPagerAdapter.itemCount
+                if (itemCount > 0) {
+                    val currentItem = viewPager.currentItem
+                    val nextItem = (currentItem + 1) % itemCount
+                    viewPager.setCurrentItem(nextItem, true)
+                }
+                handler.postDelayed(this, 1000) // 1000 ms = 1 second
+            }
+        }
+        handler.post(runnable)
     }
 
     override fun onDestroyView() {

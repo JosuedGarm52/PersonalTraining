@@ -14,6 +14,7 @@ import com.example.personaltraining.repository.RutinasRepository
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import com.example.personaltraining.UI.CronoFragmentDirections
+import com.example.personaltraining.model.Media
 
 class CronoFragmentViewModel(
     private val rutinasRepository: RutinasRepository,
@@ -33,6 +34,9 @@ class CronoFragmentViewModel(
     private val _exerciseList = MutableLiveData<List<Ejercicio>>()
     val exerciseList: LiveData<List<Ejercicio>> get() = _exerciseList
 
+    private val _mediaList = MutableLiveData<List<Media>>(emptyList())
+    val mediaList: LiveData<List<Media>> get() = _mediaList
+
     private enum class Stage { PREPARATION, EXERCISE, REST }
     private var exerciseIndex = 0
     private var preparationDone = false
@@ -44,6 +48,7 @@ class CronoFragmentViewModel(
     private var isAddingSeconds = false
 
     private var startTime: Long = 0L
+    private var startRutina: Long = 0L
     private var elapsedTime: Long = 0L
     private var isTimerRunning = false
 
@@ -51,6 +56,7 @@ class CronoFragmentViewModel(
         viewModelScope.launch {
             loadExercises()
             startTime = System.currentTimeMillis()
+            startRutina = startTime
         }
     }
 
@@ -75,9 +81,8 @@ class CronoFragmentViewModel(
     }
 
     private fun startPreparation() {
-        // Iniciar el temporizador global al comenzar la preparación
+        resetTimer()
         startTimer()
-
         currentTimer?.cancel()
         _timeLeft.value = 10L * 1000L // 10 segundos de preparación
         _isResting.value = false
@@ -106,7 +111,6 @@ class CronoFragmentViewModel(
     private fun startExercise() {
         // Iniciar el temporizador global al comenzar la preparación
         startTimer()
-
         currentTimer?.cancel()
         preparationDone = true
         if (exerciseIndex < exerciseList.value?.size ?: 0) {
@@ -124,6 +128,7 @@ class CronoFragmentViewModel(
                         cancel()
                     } else {
                         _timeLeft.value = millisUntilFinished
+                        //Log.d(_TAG, "Tiempo transcurrido en ejercicio: ${secondsToMMSS(millisUntilFinished / 1000)}")
                     }
                 }
 
@@ -138,16 +143,15 @@ class CronoFragmentViewModel(
             }
         } else {
             // Manejar el fin de la rutina
+            val elapsedTimeInMillis = System.currentTimeMillis() - (startRutina + 1)
             Log.d(_TAG, "Fin de la rutina")
-            val elapsedTimeInMillis : Long = getTotalElapsedTimeInMillis()
+            Log.d(_TAG, "Tiempo total transcurrido: ${secondsToMMSS(elapsedTimeInMillis / 1000)}")
             navigationListener?.navigateToResultFragment(elapsedTimeInMillis)
         }
     }
 
     private fun startRest() {
-        // Iniciar el temporizador global al comenzar el descanso
         startTimer()
-
         currentTimer?.cancel()
         _isResting.value = true
         _timeLeft.value = mmssToSeconds(_currentExercise.value?.DDescanso ?: "00:00")
@@ -333,6 +337,13 @@ class CronoFragmentViewModel(
 
     fun setNavigationListener(listener: NavigationListener) {
         navigationListener = listener
+    }
+
+    fun loadMediaForCurrentExercise(ejercicioId: Int) {
+        viewModelScope.launch {
+            val media = rutinasRepository.getMediaForExercise(ejercicioId)
+            _mediaList.postValue(media)
+        }
     }
 }
 

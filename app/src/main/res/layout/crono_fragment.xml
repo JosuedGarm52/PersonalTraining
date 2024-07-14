@@ -36,12 +36,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/textView6" />
 
-    <ImageView
-        android:id="@+id/img_crono_ejercicio"
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPagerMedia"
         android:layout_width="205dp"
         android:layout_height="158dp"
         android:layout_marginTop="16dp"
-        android:src="@drawable/logo_personal_training"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -59,7 +58,7 @@
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/img_crono_ejercicio">
+        app:layout_constraintTop_toBottomOf="@id/viewPagerMedia">
 
         <TextView
             android:id="@+id/tv_crono_tiempo"
@@ -82,7 +81,7 @@
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/img_crono_ejercicio">
+        app:layout_constraintTop_toBottomOf="@id/viewPagerMedia">
 
         <TextView
             android:id="@+id/tv_numero_reps"
