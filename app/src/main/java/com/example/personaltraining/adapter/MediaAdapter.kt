@@ -16,11 +16,13 @@ import com.example.personaltraining.model.Media
 import com.example.personaltraining.model.MediaTipo
 import java.io.File
 
-class MediaAdapter : ListAdapter<Media, MediaAdapter.MediaViewHolder>(MediaDiffCallback()) {
+class MediaAdapter(
+    private val onItemClick: (Media) -> Unit
+) : ListAdapter<Media, MediaAdapter.MediaViewHolder>(MediaDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MediaViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_media_add, parent, false)
-        return MediaViewHolder(view)
+        return MediaViewHolder(view, onItemClick)
     }
 
     override fun onBindViewHolder(holder: MediaViewHolder, position: Int) {
@@ -28,18 +30,24 @@ class MediaAdapter : ListAdapter<Media, MediaAdapter.MediaViewHolder>(MediaDiffC
         holder.bind(media)
     }
 
-    class MediaViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class MediaViewHolder(
+        itemView: View,
+        private val onItemClick: (Media) -> Unit
+    ) : RecyclerView.ViewHolder(itemView) {
         private val imageView: ImageView = itemView.findViewById(R.id.imageViewMedia)
         private val videoView: VideoView = itemView.findViewById(R.id.videoViewMedia)
 
         fun bind(media: Media) {
             val mediaFile = File(media.ruta) // Asume que media.ruta es la ruta completa del archivo
             if (!mediaFile.exists()) {
-                // Maneja el caso donde el archivo no existe
                 Log.e("MediaAdapter", "El archivo no existe: ${mediaFile.absolutePath}")
                 imageView.visibility = View.GONE
                 videoView.visibility = View.GONE
                 return
+            }
+
+            itemView.setOnClickListener {
+                onItemClick(media)
             }
 
             when (media.tipo) {
@@ -47,25 +55,22 @@ class MediaAdapter : ListAdapter<Media, MediaAdapter.MediaViewHolder>(MediaDiffC
                     imageView.visibility = View.VISIBLE
                     videoView.visibility = View.GONE
 
-                    Log.d("MediaAdapter", "Cargando imagen desde: ${mediaFile.absolutePath}")
                     Glide.with(imageView.context)
                         .load(mediaFile)
-                        .error(R.drawable.ic_broken_image) // Opcional: agregar un placeholder de error
+                        .error(R.drawable.ic_broken_image)
                         .into(imageView)
                 }
                 MediaTipo.VIDEO -> {
                     imageView.visibility = View.GONE
                     videoView.visibility = View.VISIBLE
-
-                    Log.d("MediaAdapter", "Cargando video desde: ${mediaFile.absolutePath}")
                     videoView.setVideoURI(Uri.fromFile(mediaFile))
                     videoView.start()
                 }
             }
         }
-
     }
 }
+
 
 class MediaDiffCallback : DiffUtil.ItemCallback<Media>() {
     override fun areItemsTheSame(oldItem: Media, newItem: Media): Boolean {

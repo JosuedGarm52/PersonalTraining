@@ -106,28 +106,29 @@ class EditEjerFragmentViewModel(private val rutinasRepository: RutinasRepository
     fun insertMedia(media: Media) {
         viewModelScope.launch {
             val insertedId = rutinasRepository.insertMedia(media)
-            Log.d(TAG, "id de la media insertada: $insertedId")
-            // Puedes manejar la respuesta aquí si es necesario
+            //Log.d(TAG, "id de la media insertada: $insertedId")
+            loadMediaForCurrentExercise(media.ejercicioId)
         }
     }
 
     fun updateMedia(media: Media) {
         viewModelScope.launch {
             rutinasRepository.updateMedia(media)
-            // Puedes manejar la respuesta aquí si es necesario
+            loadMediaForCurrentExercise(media.ejercicioId)
         }
     }
 
     fun deleteMedia(media: Media) {
         viewModelScope.launch {
             rutinasRepository.deleteMedia(media)
-            // Puedes manejar la respuesta aquí si es necesario
+            loadMediaForCurrentExercise(media.ejercicioId)
         }
     }
-    fun deleteMediaWithEjercicioId(ejercicioId: Int) {
+    fun deleteMediaWithEjercicioId() {
         viewModelScope.launch {
-            rutinasRepository.deleteMediaByEjercicioId(ejercicioId)
-
+            val id = _currentEjercicio.value?.ID ?: 0
+            rutinasRepository.deleteMediaByEjercicioId(id)
+            loadMediaForCurrentExercise(id)
         }
     }
 }

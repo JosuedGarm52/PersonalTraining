@@ -101,7 +101,9 @@ class EditEjerFragment : Fragment() {
         binding.recyclerListaEjerciciosEdit.layoutManager = LinearLayoutManager(requireContext())
 
         //val layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        mediaAdapter = MediaAdapter()
+        mediaAdapter = MediaAdapter { media ->
+            showMediaOptionsMenu(media)
+        }
         binding.viewPagerMedia.adapter = mediaAdapter
 
         checkStoragePermissions()
@@ -258,7 +260,7 @@ class EditEjerFragment : Fragment() {
             val uri: Uri? = result.data?.data
             uri?.let {
                 handleSelectedFile(it)
-                Log.d(TAG+" - startForResult", "Archivo seleccionado: $uri valor: $it")
+                //Log.d(TAG+" - startForResult", "Archivo seleccionado: $uri valor: $it")
             }
         }
     }
@@ -292,7 +294,7 @@ class EditEjerFragment : Fragment() {
                 tipo = ultimoFormato ?: MediaTipo.IMAGE , // Asegúrate de definir esta variable correctamente
                 ruta = it.absolutePath  // O la ruta relativa que prefieras
             )
-            Log.d(TAG, "nombre: ${it.absolutePath } Media: $media")
+            //Log.d(TAG, "nombre: ${it.absolutePath } Media: $media")
             viewModel.insertMedia(media)
         }
     }
@@ -474,6 +476,101 @@ class EditEjerFragment : Fragment() {
             } else {
                 // Permiso denegado, maneja el caso donde no se permite el acceso al almacenamiento
                 Toast.makeText(requireContext(), "No permitiste el acceso a los archivos", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+    private var mediaReplace : Media? = null
+    private fun showMediaOptionsMenu(media: Media) {
+        AlertDialog.Builder(requireContext())
+            .setItems(arrayOf("Reemplazar imagen", "Borrar imagen", "Borrar todas las imágenes", "Cancelar")) { _, which ->
+                when (which) {
+                    0 -> {
+                        mediaReplace = media
+                        replaceImage()
+                    }
+                    1 -> deleteImage(media)
+                    2 -> deleteAllImages()
+                    3 -> { /* Cancelar */ }
+                }
+            }
+            .show()
+    }
+
+    private fun replaceImage() {
+        if (ejercicioSeleccionado != null){
+            val options = arrayOf("Imagen", "GIF", "Video", "Cancel")
+            AlertDialog.Builder(requireContext())
+                .setTitle("Selecciona el tipo de archivo")
+                .setItems(options) { _, which ->
+                    when (which) {
+                        0 -> {
+                            ultimoFormato = MediaTipo.IMAGE
+                            selectReplace(MediaTipo.IMAGE)
+                        }
+                        1 -> {
+                            ultimoFormato = MediaTipo.GIF
+                            selectReplace(MediaTipo.GIF)
+                        }
+                        2 -> {
+                            ultimoFormato = MediaTipo.VIDEO
+                            selectReplace(MediaTipo.VIDEO)
+                        }
+                        3 -> {}
+                    }
+                }
+                .show()
+        }else{
+            Toast.makeText(requireContext(), "Debes pulsar en la lista, pulsando en seleccionar", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun deleteImage(media: Media) {
+        // Implementa la lógica para borrar la imagen
+        viewModel.deleteMedia(media)
+    }
+
+    private fun deleteAllImages() {
+        // Implementa la lógica para borrar todas las imágenes
+        viewModel.deleteMediaWithEjercicioId()
+    }
+    // Función para abrir el selector de archivos
+    private fun selectReplace(mediaTipo: MediaTipo) {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            when (mediaTipo) {
+                MediaTipo.IMAGE, MediaTipo.GIF -> { type = "image/*" }
+                MediaTipo.VIDEO -> { type = "video/*" }
+                MediaTipo.IMAGE_SEQUENCE ->{ }
+            }
+        }
+        startForResultMedia.launch(intent)
+    }
+    private val startForResultMedia = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val uri: Uri? = result.data?.data
+            uri?.let {
+                handleSelectedRemplace(it)
+            }
+        }
+    }
+    // Función para manejar el archivo seleccionado
+    private fun handleSelectedRemplace(uri: Uri) {
+        val ejercicioId = viewModel.currentEjercicio?.value?.ID ?: 0
+        val currentDate = SimpleDateFormat("ddMMyy", Locale.getDefault()).format(Date())
+        val num = viewModel.mediaList.value?.size ?: 0
+        val customFileName = "foto${num}x${num+1}_${viewModel.currentEjercicio.value?.Nombre}_${currentDate}_${ejercicioId}"
+        val file = fileManager.copyFileToPrivateStorage(uri,customFileName)
+
+        file?.let {
+            if (mediaReplace != null){
+                val media = Media(
+                    id = mediaReplace!!.id,
+                    ejercicioId = mediaReplace!!.ejercicioId,
+                    tipo = ultimoFormato ?: MediaTipo.IMAGE,
+                    ruta = it.absolutePath
+                )
+                //Log.d(TAG, "nombre: ${it.absolutePath } Media: $media")
+                viewModel.updateMedia(media)
             }
         }
     }
