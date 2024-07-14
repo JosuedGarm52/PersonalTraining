@@ -9,17 +9,14 @@
     <ImageView
         android:id="@+id/imageViewMedia"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="match_parent"
         android:scaleType="fitCenter"
         android:adjustViewBounds="true" />
 
     <VideoView
         android:id="@+id/videoViewMedia"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="match_parent"
         android:visibility="gone"/>
 </LinearLayout>
-
 

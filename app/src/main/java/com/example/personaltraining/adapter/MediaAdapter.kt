@@ -47,6 +47,7 @@ class MediaAdapter : ListAdapter<Media, MediaAdapter.MediaViewHolder>(MediaDiffC
                     imageView.visibility = View.VISIBLE
                     videoView.visibility = View.GONE
 
+                    Log.d("MediaAdapter", "Cargando imagen desde: ${mediaFile.absolutePath}")
                     Glide.with(imageView.context)
                         .load(mediaFile)
                         .error(R.drawable.ic_broken_image) // Opcional: agregar un placeholder de error
@@ -55,6 +56,8 @@ class MediaAdapter : ListAdapter<Media, MediaAdapter.MediaViewHolder>(MediaDiffC
                 MediaTipo.VIDEO -> {
                     imageView.visibility = View.GONE
                     videoView.visibility = View.VISIBLE
+
+                    Log.d("MediaAdapter", "Cargando video desde: ${mediaFile.absolutePath}")
                     videoView.setVideoURI(Uri.fromFile(mediaFile))
                     videoView.start()
                 }

@@ -83,10 +83,10 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/edtNombreEjercicio_edit" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewMedia"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/viewPagerMedia"
+            android:layout_width="205dp"
+            android:layout_height="158dp"
             android:layout_marginTop="12dp"
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
@@ -169,12 +169,12 @@
             android:id="@+id/chkRepeticion_edit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="164dp"
+            android:layout_marginTop="111dp"
             android:enabled="false"
             app:layout_constraintEnd_toStartOf="@+id/textView4"
             app:layout_constraintHorizontal_bias="0.21"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/recyclerViewMedia" />
+            app:layout_constraintTop_toBottomOf="@+id/btnAddImagen" />
 
         <EditText
             android:id="@+id/edtCantRep_edit"
@@ -218,12 +218,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:background="@drawable/button_background_enabled"
-            android:text="Añadir imagen"
             android:enabled="false"
+            android:text="Añadir imagen"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/recyclerViewMedia" />
+            app:layout_constraintTop_toBottomOf="@+id/viewPagerMedia" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

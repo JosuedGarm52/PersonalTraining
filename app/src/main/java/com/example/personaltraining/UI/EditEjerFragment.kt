@@ -1,5 +1,10 @@
 package com.example.personaltraining.UI
 
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
@@ -85,8 +90,6 @@ class EditEjerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        //!!!!Borrar cuando se solucione el bug
-        //viewModel.deleteMediaWithEjercicioId(5)
 
         fileManager = FileManager(requireContext())
 
@@ -97,10 +100,11 @@ class EditEjerFragment : Fragment() {
         binding.recyclerListaEjerciciosEdit.adapter = adapter
         binding.recyclerListaEjerciciosEdit.layoutManager = LinearLayoutManager(requireContext())
 
-        val layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        //val layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         mediaAdapter = MediaAdapter()
-        binding.recyclerViewMedia.adapter = mediaAdapter
-        binding.recyclerViewMedia.layoutManager = layoutManager
+        binding.viewPagerMedia.adapter = mediaAdapter
+
+        checkStoragePermissions()
 
         viewModel.mediaList.observe(viewLifecycleOwner) { media ->
             Log.d("EditEjerFragment", "Lista de media actualizada: $media")
@@ -298,7 +302,7 @@ class EditEjerFragment : Fragment() {
         clearFields()
         changeEnableFieldsEspecif(true)
         binding.btnAddImagen.isEnabled = false
-        binding.recyclerViewMedia.isEnabled = false
+        binding.viewPagerMedia.isEnabled = false
         llenarDatos(ejercicio)
         binding.btnEditarEjercicio.text = "Añadir ejercicio"
     }
@@ -436,7 +440,7 @@ class EditEjerFragment : Fragment() {
         binding.edtimeDuracionDescansoEdit.isEnabled = estado
         binding.btnAddImagen.isEnabled = estado
         binding.btnEditarEjercicio.isEnabled = estado
-        binding.recyclerViewMedia.isEnabled = estado
+        binding.viewPagerMedia.isEnabled = estado
     }
     private fun llenarDatos(ejercicio: Ejercicio){
         binding.edtNombreEjercicioEdit.setText(ejercicio.Nombre)
@@ -446,5 +450,31 @@ class EditEjerFragment : Fragment() {
         binding.chkDurTiempoEdit.isChecked = !ejercicio.isObjetivo
         binding.edtCantRepEdit.setText(if (ejercicio.isObjetivo) ejercicio.Objetivo else "")
         binding.edtCantRepEdit.isEnabled = binding.chkRepeticionEdit.isChecked
+    }
+    private fun checkStoragePermissions() {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
+            != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(requireActivity(),
+                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                REQUEST_CODE_READ_EXTERNAL_STORAGE)
+        }
+    }
+    companion object {
+        private const val REQUEST_CODE_READ_EXTERNAL_STORAGE = 1001
+    }
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_CODE_READ_EXTERNAL_STORAGE) {
+            if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                // Permiso concedido, puedes proceder a cargar los medios
+            } else {
+                // Permiso denegado, maneja el caso donde no se permite el acceso al almacenamiento
+                Toast.makeText(requireContext(), "No permitiste el acceso a los archivos", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 }

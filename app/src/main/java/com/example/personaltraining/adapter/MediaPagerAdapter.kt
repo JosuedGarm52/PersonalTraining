@@ -17,7 +17,7 @@ import java.io.File
 class MediaPagerAdapter(private val mediaItems: List<MediaItem>) : RecyclerView.Adapter<MediaPagerAdapter.MediaViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MediaViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_media_add, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_media, parent, false)
         return MediaViewHolder(view)
     }
 
