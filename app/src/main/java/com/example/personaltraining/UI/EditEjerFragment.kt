@@ -177,6 +177,8 @@ class EditEjerFragment : Fragment() {
                 }
 
                 clearFields()
+                viewModel.cambiarEjercicioActual(null)
+                changeEnableFieldsEspecif(false)
                 ejercicioSeleccionado = null
                 Toast.makeText(requireContext(), "Ejercicio agregado", Toast.LENGTH_SHORT).show()
             } else {

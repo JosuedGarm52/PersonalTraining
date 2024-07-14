@@ -37,8 +37,9 @@ class CronoFragmentViewModel(
     private val _mediaList = MutableLiveData<List<Media>>(emptyList())
     val mediaList: LiveData<List<Media>> get() = _mediaList
 
-    private enum class Stage { PREPARATION, EXERCISE, REST }
+    enum class Stage { PREPARATION, EXERCISE, REST }
     private var exerciseIndex = 0
+    private var index = 0
     private var preparationDone = false
     private var currentStage = Stage.PREPARATION
     private var currentTimer: CountDownTimer? = null
@@ -54,10 +55,14 @@ class CronoFragmentViewModel(
 
     init {
         viewModelScope.launch {
+
             loadExercises()
             startTime = System.currentTimeMillis()
             startRutina = startTime
         }
+    }
+    fun getCurrentStage(): Stage {
+        return currentStage
     }
 
     private fun loadExercises() {
@@ -87,6 +92,7 @@ class CronoFragmentViewModel(
         _timeLeft.value = 10L * 1000L // 10 segundos de preparación
         _isResting.value = false
         currentStage = Stage.PREPARATION
+        cambiarMedia()
 
         currentTimer = object : CountDownTimer(_timeLeft.value ?: 0L, 1000L) {
             override fun onTick(millisUntilFinished: Long) {
@@ -118,6 +124,7 @@ class CronoFragmentViewModel(
             _timeLeft.value = mmssToSeconds(_currentExercise.value?.DEjercicio ?: "00:00")
             _isResting.value = false
             currentStage = Stage.EXERCISE
+            cambiarMedia()
 
             val isObjetivo = _currentExercise.value?.isObjetivo ?: false
 
@@ -156,6 +163,8 @@ class CronoFragmentViewModel(
         _isResting.value = true
         _timeLeft.value = mmssToSeconds(_currentExercise.value?.DDescanso ?: "00:00")
         currentStage = Stage.REST
+        index++
+        cambiarMedia()
 
         currentTimer = object : CountDownTimer(_timeLeft.value ?: 0L, 1000L) {
             override fun onTick(millisUntilFinished: Long) {
@@ -339,12 +348,32 @@ class CronoFragmentViewModel(
         navigationListener = listener
     }
 
-    fun loadMediaForCurrentExercise(ejercicioId: Int) {
+    fun loadMediaForCurrentExercise(ejercicioId: Int?) {
         viewModelScope.launch {
-            val media = rutinasRepository.getMediaForExercise(ejercicioId)
-            _mediaList.postValue(media)
+            if (ejercicioId == null) {
+                _mediaList.postValue(emptyList())
+            }else{
+                val media = rutinasRepository.getMediaForExercise(ejercicioId)
+                _mediaList.postValue(media)
+            }
         }
     }
+    fun getExerciseIdAtIndex(index: Int): Int? {
+        val exercises = exerciseList.value
+        if (exercises != null && index in exercises.indices) {
+            return exercises[index].ID
+        }
+        return null // En caso de índice fuera de rango o lista vacía
+    }
+    fun cambiarMedia(){
+        loadMediaForCurrentExercise(getExerciseIdAtIndex(index))
+    }
+    override fun onCleared() {
+        stopTimer()
+        currentTimer?.cancel()
+        super.onCleared()
+    }
+
 }
 
 interface NavigationListener {

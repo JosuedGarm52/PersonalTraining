@@ -142,7 +142,6 @@ class CronoFragment : Fragment(), NavigationListener {
             } else {
                 showCrono()
             }
-            viewModel.loadMediaForCurrentExercise(it.ID)
         } ?: run {
             // Manejar caso donde exercise es nulo si es necesario
             showCrono() // Mostrar por defecto el cronómetro si no hay ejercicio actual
