@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.personaltraining.R
@@ -21,6 +22,7 @@ import com.example.personaltraining.databinding.ListRecyclerFragmentBinding
 import com.example.personaltraining.model.Rutina
 import com.example.personaltraining.viewModel.ListRecyclerFragmentViewModelFactory
 import com.example.personaltraining.viewModel.ListRecyclerFragmentViewModel
+import kotlinx.coroutines.launch
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -34,7 +36,7 @@ class ListRecyclerFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
-    val listRecyclerFragmentViewModel: ListRecyclerFragmentViewModel by viewModels {
+    private val listRecyclerFragmentViewModel: ListRecyclerFragmentViewModel by viewModels {
         ListRecyclerFragmentViewModelFactory((requireActivity().application as RutinasApplication).repository)
     }
 
@@ -79,19 +81,26 @@ class ListRecyclerFragment : Fragment() {
         val adapter = RutinasAdapter(
             clickt = { rutina -> onItemClick(rutina) },
             deletet = { rutina -> onItemDelete(rutina) },
-            editt = { rutina -> onItemEdit(rutina) }
+            editt = { rutina -> onItemEdit(rutina) },
+            listEjercicios = null // Datos iniciales vacíos
         )
 
         binding.recyclerView.adapter = adapter
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
+        listRecyclerFragmentViewModel.ejerciciosList.observe(viewLifecycleOwner) { ejercicios ->
+            //Log.d("ListRecyclerFragment", "Lista de ejercicios actualizada: $ejercicios")
+            adapter.updateEjercicios(ejercicios)
+        }
+        listRecyclerFragmentViewModel.actualizarEjercicios()
+
         try {
-            listRecyclerFragmentViewModel.rutinasKardex.observe(viewLifecycleOwner, Observer { rutinas ->
+            listRecyclerFragmentViewModel.rutinasKardex.observe(viewLifecycleOwner) { rutinas ->
                 rutinas?.let {
                     Log.d("ListRecyclerFragment", "Lista de rutinas actualizada: $it")
                     adapter.submitList(it)
                 }
-            })
+            }
         } catch (e: Exception) {
             Log.e("ListRecyclerFragment", "Error al observar rutinasKardex: ${e.message}", e)
         }

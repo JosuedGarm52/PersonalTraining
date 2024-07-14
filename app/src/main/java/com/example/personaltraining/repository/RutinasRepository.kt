@@ -38,6 +38,8 @@ class RutinasRepository (
         rutinaDao.updateRutina(rutina)
     }
 
+    fun getAllEjercicios(): Flow<List<Ejercicio>> = ejercicioDao.getAll()
+
     fun getEjerciciosByRutinaId(rutinaId: Int): Flow<List<Ejercicio>> {
         return ejercicioDao.getEjerciciosByRutinaId(rutinaId)
     }

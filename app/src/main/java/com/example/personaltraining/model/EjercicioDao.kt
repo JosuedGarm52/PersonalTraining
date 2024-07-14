@@ -8,7 +8,10 @@ import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface EjercicioDao {
+interface EjercicioDao{
+    @Query("SELECT * FROM Ejercicio")
+    fun getAll(): Flow<List<Ejercicio>>
+
     @Query("SELECT * FROM Ejercicio WHERE rutinaId = :rutinaId")
     fun getEjerciciosByRutinaId(rutinaId: Int): Flow<List<Ejercicio>>
 

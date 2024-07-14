@@ -1,5 +1,6 @@
 package com.example.personaltraining.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
@@ -9,15 +10,21 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.personaltraining.R
 import com.example.personaltraining.model.Rutina
 import android.view.View
-import android.widget.Button
 import android.widget.LinearLayout
 import com.chauthai.swipereveallayout.SwipeRevealLayout
+import com.example.personaltraining.model.Ejercicio
 
 class RutinasAdapter(
     private val clickt: (Rutina) -> Unit,
     private val deletet: (Rutina) -> Unit,
-    private val editt: (Rutina) -> Unit) :
-    ListAdapter<Rutina, RutinasAdapter.ViewHolder>(RutinaComparator()) {
+    private val editt: (Rutina) -> Unit,
+    private var listEjercicios: List<Ejercicio>?
+) : ListAdapter<Rutina, RutinasAdapter.ViewHolder>(RutinaComparator()) {
+
+    fun updateEjercicios(nuevosEjercicios: List<Ejercicio>?) {
+        listEjercicios = nuevosEjercicios
+        notifyDataSetChanged() // Notificar al adaptador que los datos han cambiado
+    }
 
     class ViewHolder(
         item: View,
@@ -92,13 +99,34 @@ class RutinasAdapter(
             }
         }
 
-        fun bind(rutina: Rutina) {
+        fun bind(rutina: Rutina, listEjercicios : List<Ejercicio>?) {
             this.rutina = rutina
 
             tvTitulo.text = "Rutina N°: " + rutina.ID.toString() + " " + rutina.nombre
-            tvDuracionEjer.text = ""
+            // Filtrar ejercicios por rutinaId
+            val ejerciciosDeRutina = listEjercicios?.filter { it.rutinaId == rutina.ID }
+            // Verificar si alguno de los ejercicios tiene isObjetivo como true
+            val tieneObjetivo = ejerciciosDeRutina?.any { it.isObjetivo || it.Objetivo != null } ?: false
+            val titulo = if (tieneObjetivo) "Tiempo estimado: " else "Tiempo: "
+
+            // Sumar tiempos de DEjercicio y DDescanso
+            val totalTimeInSeconds = ejerciciosDeRutina?.sumOf {
+                convertToSeconds(it.DEjercicio) + convertToSeconds(it.DDescanso)
+            } ?: 0
+
+            // Convertir el tiempo total a MM:SS
+            val totalTimeFormatted = String.format("%02d:%02d", totalTimeInSeconds / 60, totalTimeInSeconds % 60)
+            val text = "$titulo$totalTimeFormatted"
+            tvDuracionEjer.text = text
+
             tvFecha.text = "Fecha de creacion: "+ rutina.fechaCreacion
 
+        }
+        fun convertToSeconds(time: String): Int {
+            val parts = time.split(":")
+            val minutes = parts[0].toInt()
+            val seconds = parts[1].toInt()
+            return minutes * 60 + seconds
         }
     }
 
@@ -109,7 +137,7 @@ class RutinasAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val rutina = getItem(position)
-        holder.bind(rutina)
+        holder.bind(rutina, listEjercicios)
     }
 
     class RutinaComparator : DiffUtil.ItemCallback<Rutina>() {
