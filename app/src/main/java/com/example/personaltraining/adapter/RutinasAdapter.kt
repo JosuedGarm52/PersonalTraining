@@ -33,7 +33,7 @@ class RutinasAdapter(
         val editt: (Rutina) -> Unit)
         : RecyclerView.ViewHolder(item) {
         private lateinit var rutina: Rutina
-        val swipeRevealLayout: SwipeRevealLayout = item.findViewById(R.id.swipeRevealLayout)
+        //val swipeRevealLayout: SwipeRevealLayout = item.findViewById(R.id.swipeRevealLayout)
         val tvTitulo: TextView = item.findViewById(R.id.tvTitulo)
         val tvDuracionEjer: TextView = item.findViewById(R.id.tvDuracionEjer)
         val tvFecha: TextView = item.findViewById(R.id.tvFechaCreacion)
@@ -42,43 +42,6 @@ class RutinasAdapter(
         val btnEditar: LinearLayout = item.findViewById(R.id.catalogEdit)
 
         init {
-            /*
-             // Configurar clic en el área extra
-            btnClickArea.setOnClickListener {
-                if (::rutina.isInitialized) {
-                    clickt(rutina)
-                }
-            }
-
-            // Configurar clic en el SwipeRevealLayout
-            swipeRevealLayout.setSwipeListener(object : SwipeListener {
-                override fun onClosed(view: SwipeRevealLayout?) {
-                    // Manejar eventos al cerrar el SwipeRevealLayout si es necesario
-                }
-
-                override fun onOpened(view: SwipeRevealLayout?) {
-                    // Manejar eventos al abrir el SwipeRevealLayout si es necesario
-                }
-
-                override fun onSlide(view: SwipeRevealLayout?, slideOffset: Float) {
-                    // Manejar eventos de deslizamiento si es necesario
-                }
-            })
-
-
-
-            swipeRevealLayout.setOnClickListener {
-                if (::rutina.isInitialized) {
-                    clickt(rutina) // Llamar al callback con la rutina actual
-                }
-            }
-
-            itemView.setOnClickListener {
-                if (::rutina.isInitialized) {
-                    clickt(rutina)
-                }
-            }
-            */
 
             btnIniciar.setOnClickListener {
                 if (::rutina.isInitialized) {
