@@ -109,7 +109,7 @@ class EditEjerFragment : Fragment() {
         checkStoragePermissions()
 
         viewModel.mediaList.observe(viewLifecycleOwner) { media ->
-            Log.d("EditEjerFragment", "Lista de media actualizada: $media")
+            Log.d(TAG, "Lista de media actualizada: $media")
             mediaAdapter.submitList(media)
         }
 
@@ -126,11 +126,11 @@ class EditEjerFragment : Fragment() {
         viewModel.currentEjercicio.observe(viewLifecycleOwner) { ejercicio ->
             val valor = ejercicio != null
             changeEnableFieldsEspecif(valor)
-            //Log.d("EditEjerFragment", "Ejercicio actual: $ejercicio")
+            //Log.d(TAG, "Ejercicio actual: $ejercicio")
         }
 
         viewModel.ejercicios.observe(viewLifecycleOwner) { ejercicios ->
-            Log.d("EditEjerFragment", "Lista de ejercicios actualizada: $ejercicios")
+            Log.d(TAG, "Lista de ejercicios actualizada: $ejercicios")
             adapter.submitList(ejercicios)
         }
 
@@ -280,24 +280,29 @@ class EditEjerFragment : Fragment() {
 
     // Función para manejar el archivo seleccionado
     private fun handleSelectedFile(uri: Uri) {
-        // Generar un nombre personalizado para el archivo
         val ejercicioId = viewModel.currentEjercicio?.value?.ID ?: 0
-        // Generar la fecha actual en el formato deseado
         val currentDate = SimpleDateFormat("ddMMyy", Locale.getDefault()).format(Date())
-        val num = viewModel.mediaList.value?.size ?: 0
-        val customFileName = "foto${num}_${viewModel.currentEjercicio.value?.Nombre}_${currentDate}_${ejercicioId}"
-        // Aquí manejas el archivo seleccionado, por ejemplo copiándolo a la carpeta privada
-        val file = fileManager.copyFileToPrivateStorage(uri,customFileName)
+        var fileName = getFileNameFromUri(uri) ?: "temp_file"
+        var customFileName = "foto_${fileName}_${currentDate}_${ejercicioId}"
+
+        // Verificar si ya existe un archivo con el mismo nombre
+        var num = 0
+        while (fileManager.fileExistsInPrivateStorage(customFileName)) {
+            num++
+            customFileName = "foto${num}_${viewModel.currentEjercicio.value?.Nombre}_${currentDate}_${ejercicioId}"
+        }
+
+        val file = fileManager.copyFileToPrivateStorage(uri, customFileName)
         file?.let {
             val media = Media(
-                ejercicioId = viewModel.currentEjercicio?.value?.ID ?: 0,
-                tipo = ultimoFormato ?: MediaTipo.IMAGE , // Asegúrate de definir esta variable correctamente
-                ruta = it.absolutePath  // O la ruta relativa que prefieras
+                ejercicioId = ejercicioId,
+                tipo = ultimoFormato ?: MediaTipo.IMAGE,
+                ruta = it.absolutePath
             )
-            //Log.d(TAG, "nombre: ${it.absolutePath } Media: $media")
             viewModel.insertMedia(media)
         }
     }
+
 
     private fun copyEjercicio(ejercicio: Ejercicio) {
         viewModel.cambiarEjercicioActual(null)
@@ -557,8 +562,15 @@ class EditEjerFragment : Fragment() {
     private fun handleSelectedRemplace(uri: Uri) {
         val ejercicioId = viewModel.currentEjercicio?.value?.ID ?: 0
         val currentDate = SimpleDateFormat("ddMMyy", Locale.getDefault()).format(Date())
-        val num = viewModel.mediaList.value?.size ?: 0
-        val customFileName = "foto${num}x${num+1}_${viewModel.currentEjercicio.value?.Nombre}_${currentDate}_${ejercicioId}"
+        var fileName = getFileNameFromUri(uri) ?: "temp_file"
+        var customFileName = "foto_${fileName}_${currentDate}_${ejercicioId}"
+
+        // Verificar si ya existe un archivo con el mismo nombre
+        var num = 0
+        while (fileManager.fileExistsInPrivateStorage(customFileName)) {
+            num++
+            customFileName = "foto${num}x${num+1}_${fileName}_${currentDate}_${ejercicioId}"
+        }
         val file = fileManager.copyFileToPrivateStorage(uri,customFileName)
 
         file?.let {
@@ -573,5 +585,25 @@ class EditEjerFragment : Fragment() {
                 viewModel.updateMedia(media)
             }
         }
+    }
+    // Función para obtener el nombre de archivo desde la URI
+    private fun getFileNameFromUri(uri: Uri): String? {
+        var fileName: String? = null
+        val cursor = context?.contentResolver?.query(uri, null, null, null, null)
+        cursor?.use {
+            if (it.moveToFirst()) {
+                val columnIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                fileName = if (columnIndex != -1) {
+                    val displayName = it.getString(columnIndex)
+                    // Remover la extensión del nombre del archivo
+                    val nameWithoutExtension = displayName.substringBeforeLast(".")
+                    nameWithoutExtension
+                } else {
+                    // Si no se encuentra DISPLAY_NAME, generar un nombre genérico
+                    "archivo_${System.currentTimeMillis()}"
+                }
+            }
+        }
+        return fileName
     }
 }

@@ -41,7 +41,7 @@ class EditEjerFragmentViewModel(private val rutinasRepository: RutinasRepository
     fun getRutinaById(rutinaId: Int) {
         viewModelScope.launch {
             val result = rutinasRepository.getRutinaById(rutinaId)
-            Log.d("EditEjerFragmentViewModel", "Ejercicios obtenidos: $result")
+            //Log.d("EditEjerFragmentViewModel", "Ejercicios obtenidos: $result")
             _rutina.value = result
             if (result == null) {
                 Log.e("EditEjerFragmentViewModel", "Rutina no encontrada")
@@ -100,6 +100,7 @@ class EditEjerFragmentViewModel(private val rutinasRepository: RutinasRepository
     fun loadMediaForCurrentExercise(ejercicioId: Int) {
         viewModelScope.launch {
             val media = rutinasRepository.getMediaForExercise(ejercicioId)
+            //Log.d(TAG, "Media for exercise with id $ejercicioId: $media")
             _mediaList.postValue(media)
         }
     }

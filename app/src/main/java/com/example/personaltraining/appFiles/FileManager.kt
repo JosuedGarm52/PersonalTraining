@@ -62,6 +62,11 @@ class FileManager(private val context: Context) {
         return File(mediaDir, fileName).absolutePath
     }
 
+    fun fileExistsInPrivateStorage(fileName: String): Boolean {
+        val file = File(mediaDir, fileName)
+        return file.exists()
+    }
+
     // Función para mostrar un diálogo en caso de error al crear el directorio
     private fun showDirectoryCreationErrorDialog() {
         AlertDialog.Builder(context)
