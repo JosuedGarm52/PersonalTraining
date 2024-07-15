@@ -64,6 +64,8 @@ class ResultFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        mediaPlayer?.release()
+        mediaPlayer = null
         _binding = null
     }
 }

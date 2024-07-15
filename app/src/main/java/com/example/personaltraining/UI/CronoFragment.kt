@@ -70,10 +70,10 @@ class CronoFragment : Fragment(), NavigationListener {
             Toast.makeText(requireContext(), "ID no válido", Toast.LENGTH_SHORT).show()
             findNavController().popBackStack()
         }
-
         // Initialize ViewModel and ViewModelFactory
-        val repository = (requireActivity().application as RutinasApplication).repository
-        viewModelFactory = CronoFragmentViewModelFactory(repository, args.ID)
+        val application = requireActivity().application as RutinasApplication
+        val repository = application.repository
+        viewModelFactory = CronoFragmentViewModelFactory(application, repository, args.ID)
         viewModel = ViewModelProvider(this, viewModelFactory)[CronoFragmentViewModel::class.java]
 
         viewPager = binding.viewPagerMedia

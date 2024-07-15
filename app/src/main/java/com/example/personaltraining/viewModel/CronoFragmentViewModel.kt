@@ -1,14 +1,18 @@
 package com.example.personaltraining.viewModel
 
+import android.media.MediaPlayer
 import android.os.CountDownTimer
+import android.app.Application
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.personaltraining.R
 import com.example.personaltraining.model.Ejercicio
 import com.example.personaltraining.repository.RutinasRepository
 import kotlinx.coroutines.flow.catch
@@ -17,9 +21,10 @@ import com.example.personaltraining.UI.CronoFragmentDirections
 import com.example.personaltraining.model.Media
 
 class CronoFragmentViewModel(
+    application: Application,
     private val rutinasRepository: RutinasRepository,
     private val rutinaId: Int
-) : ViewModel() {
+) : AndroidViewModel(application) {
 
     private val _TAG = "CronoFragmentViewModel"
     private val _timeLeft = MutableLiveData<Long>()
@@ -46,12 +51,14 @@ class CronoFragmentViewModel(
     private var pausedTimeRemaining: Long = 0
     var isPaused: Boolean = false
         private set //solo aqui se puede modificar? Wow
-    private var isAddingSeconds = false
 
     private var startTime: Long = 0L
     private var startRutina: Long = 0L
     private var elapsedTime: Long = 0L
     private var isTimerRunning = false
+
+    private var sound1: MediaPlayer? = null
+    private var sound2: MediaPlayer? = null
 
     init {
         viewModelScope.launch {
@@ -101,6 +108,9 @@ class CronoFragmentViewModel(
                     cancel()
                 } else {
                     _timeLeft.value = millisUntilFinished
+                    if (millisUntilFinished <= 3000L || millisUntilFinished == 1000L) {
+                        playSound1()  // Reproduce el sonido 1 cuando quedan 3 o 1 segundos
+                    }
                 }
             }
 
@@ -115,7 +125,6 @@ class CronoFragmentViewModel(
 
     //BUG: durante el ejercicio y es por objetivo y pulsa en mas cinco al acabarse pasa a la siguiente etapa, si no lo pulsas si se detiene como se espera
     private fun startExercise() {
-        // Iniciar el temporizador global al comenzar la preparación
         startTimer()
         currentTimer?.cancel()
         preparationDone = true
@@ -125,6 +134,7 @@ class CronoFragmentViewModel(
             _isResting.value = false
             currentStage = Stage.EXERCISE
             cambiarMedia()
+            playSound2() // Reproduce el sonido 2 al comenzar una nueva etapa
 
             val isObjetivo = _currentExercise.value?.isObjetivo ?: false
 
@@ -135,7 +145,9 @@ class CronoFragmentViewModel(
                         cancel()
                     } else {
                         _timeLeft.value = millisUntilFinished
-                        //Log.d(_TAG, "Tiempo transcurrido en ejercicio: ${secondsToMMSS(millisUntilFinished / 1000)}")
+                        if (millisUntilFinished <= 3000L || millisUntilFinished == 1000L) {
+                            playSound1()  // Reproduce el sonido 1 cuando quedan 3 o 1 segundos
+                        }
                     }
                 }
 
@@ -143,16 +155,12 @@ class CronoFragmentViewModel(
                     if (!isObjetivo) {
                         startRest()
                     }
-                    // No se inicia el descanso automáticamente si es objetivo
                 }
             }.also {
                 it.start()
             }
         } else {
-            // Manejar el fin de la rutina
             val elapsedTimeInMillis = System.currentTimeMillis() - (startRutina + 1)
-            Log.d(_TAG, "Fin de la rutina")
-            Log.d(_TAG, "Tiempo total transcurrido: ${secondsToMMSS(elapsedTimeInMillis / 1000)}")
             navigationListener?.navigateToResultFragment(elapsedTimeInMillis)
         }
     }
@@ -165,6 +173,7 @@ class CronoFragmentViewModel(
         currentStage = Stage.REST
         index++
         cambiarMedia()
+        playSound2() // Reproduce el sonido 2 al comenzar una nueva etapa
 
         currentTimer = object : CountDownTimer(_timeLeft.value ?: 0L, 1000L) {
             override fun onTick(millisUntilFinished: Long) {
@@ -173,6 +182,9 @@ class CronoFragmentViewModel(
                     cancel()
                 } else {
                     _timeLeft.value = millisUntilFinished
+                    if (millisUntilFinished <= 3000L || millisUntilFinished == 1000L) {
+                        playSound1()  // Reproduce el sonido 1 cuando quedan 3 o 1 segundos
+                    }
                 }
             }
 
@@ -371,7 +383,20 @@ class CronoFragmentViewModel(
     override fun onCleared() {
         stopTimer()
         currentTimer?.cancel()
+        sound1?.release()
+        sound2?.release()
+        sound1 = null
+        sound2 = null
         super.onCleared()
+    }
+    private fun playSound1() {
+        sound1 = MediaPlayer.create(getApplication(), R.raw.short_tin)
+        sound1?.start()
+    }
+
+    private fun playSound2() {
+        sound2 = MediaPlayer.create(getApplication(), R.raw.long_tin)
+        sound2?.start()
     }
 
 }
@@ -381,13 +406,14 @@ interface NavigationListener {
 }
 
 class CronoFragmentViewModelFactory(
+    private val application: Application,
     private val rutinasRepository: RutinasRepository,
     private val rutinaID: Int
         ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(CronoFragmentViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return CronoFragmentViewModel(rutinasRepository, rutinaID) as T
+            return CronoFragmentViewModel(application,rutinasRepository, rutinaID) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
