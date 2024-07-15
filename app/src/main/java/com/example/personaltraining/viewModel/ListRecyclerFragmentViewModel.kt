@@ -7,8 +7,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.personaltraining.model.Ejercicio
+import com.example.personaltraining.model.Media
 import com.example.personaltraining.model.Rutina
 import com.example.personaltraining.repository.RutinasRepository
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 
 class ListRecyclerFragmentViewModel( private val rutinasRepository: RutinasRepository) : ViewModel() {
@@ -34,8 +36,30 @@ class ListRecyclerFragmentViewModel( private val rutinasRepository: RutinasRepos
         }
     }
 
+    fun actualizarLista(){
+        viewModelScope.launch {
+            rutinasRepository.getAllRutinas().collect {
+                _rutinasKardex.value = it // Asigna los elementos del flujo a la variable mutable
+            }
+        }
+    }
+    suspend fun addRutinaAndGetId(rutina: Rutina): Long {
+        return rutinasRepository.insertRutina(rutina)
+    }
+
+    suspend fun addEjercicioAndGetId(ejercicio: Ejercicio): Long {
+        return rutinasRepository.insertEjercicio(ejercicio)
+    }
+
+    fun addMedia(media: Media) {
+        viewModelScope.launch {
+            rutinasRepository.insertMedia(media)
+        }
+    }
+
     fun deleteRutina(rutinaId: Int) {
         viewModelScope.launch {
+            Log.d("ListRecyclerFragmentViewModel", "rutinaId: $rutinaId")
             rutinasRepository.deleteRutinaWithExercises(rutinaId)
         }
     }

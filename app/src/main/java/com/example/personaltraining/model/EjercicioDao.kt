@@ -19,7 +19,7 @@ interface EjercicioDao{
     suspend fun onlyAdd(ejercicio: Ejercicio)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(ejercicio: Ejercicio)
+    suspend fun insert(ejercicio: Ejercicio): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(ejercicios: List<Ejercicio>)

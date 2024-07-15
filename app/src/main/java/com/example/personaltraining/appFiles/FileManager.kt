@@ -31,6 +31,22 @@ class FileManager(private val context: Context) {
     }
 
 
+    fun copyRawResourceToPrivateStorage(resourceId: Int, fileName: String): File? {
+        return try {
+            val inputStream = context.resources.openRawResource(resourceId)
+            val destinationFile = File(mediaDir, fileName)
+            inputStream.use { input ->
+                destinationFile.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+            destinationFile
+        } catch (e: Exception) {
+            Log.e(tag, "Error al copiar archivo desde recursos a almacenamiento privado", e)
+            null
+        }
+    }
+
     // Función para copiar un archivo a almacenamiento privado
     fun copyFileToPrivateStorage(uri: Uri, customFileName: String? = null): File? {
         return try {

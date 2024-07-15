@@ -10,6 +10,8 @@ import com.example.personaltraining.model.MediaDao
 import com.example.personaltraining.model.Rutina
 import com.example.personaltraining.model.RutinaDao
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.forEach
 
 class RutinasRepository (
     private val ejercicioDao: EjercicioDao,
@@ -45,8 +47,8 @@ class RutinasRepository (
     }
 
     @WorkerThread
-    suspend fun insertEjercicio(ejercicio: Ejercicio) {
-        ejercicioDao.insert(ejercicio)
+    suspend fun insertEjercicio(ejercicio: Ejercicio) : Long {
+        return ejercicioDao.insert(ejercicio)
     }
 
     @WorkerThread
@@ -68,21 +70,37 @@ class RutinasRepository (
         rutinaDao.deleteRutinaById(rutinaId)
     }
 
+
     suspend fun deleteEjercicioById(ejercicioId: Int) {
+        deleteMediaByEjercicioId(ejercicioId)
         ejercicioDao.deleteEjercicioById(ejercicioId)
+    }
+    suspend fun deleteEjercicioById(ejercicio: Ejercicio) {
+        deleteMediaByEjercicioId(ejercicio)
+        ejercicioDao.deleteEjercicioById(ejercicio.ID)
     }
 
     @WorkerThread
     @Transaction
     suspend fun deleteRutinaWithExercises(rutinaId: Int) {
         try {
-            //Log.d("RutinasRepository", "Deleting exercises with rutinaId: $rutinaId")
-            ejercicioDao.deleteEjerciciosByRutinaId(rutinaId)
-            //Log.d("RutinasRepository", "Exercises deleted for rutinaId: $rutinaId")
+            // Recolecta los datos del Flow de ejercicios asociados a la rutina
+            val ejercicios = ejercicioDao.getEjerciciosByRutinaId(rutinaId).firstOrNull() ?: return
+            Log.d("RutinasRepository", "Ejercicios: $ejercicios")
 
-            //Log.d("RutinasRepository", "Deleting rutina with id: $rutinaId")
+            // Itera sobre cada ejercicio para obtener y eliminar sus medios asociados
+            ejercicios.forEach { ejercicio ->
+                val medios = mediaDao.getMediaForExercise(ejercicio.ID)
+                medios.forEach { medio ->
+                    deleteMedia(medio) // Elimina cada medio asociado al ejercicio
+                }
+            }
+
+            // Eliminar todos los ejercicios asociados a la rutina
+            ejercicioDao.deleteEjerciciosByRutinaId(rutinaId)
+
+            // Finalmente, eliminar la rutina
             rutinaDao.deleteRutinaById(rutinaId)
-            //Log.d("RutinasRepository", "Rutina and exercises deleted successfully")
         } catch (e: Exception) {
             Log.e("RutinasRepository", "Error deleting rutina and exercises: ${e.message}", e)
         }
@@ -99,6 +117,9 @@ class RutinasRepository (
     }
     suspend fun deleteMedia(media: Media) {
         mediaDao.deleteMedia(media)
+    }
+    suspend fun deleteMediaByEjercicioId(ejercicio: Ejercicio) {
+        mediaDao.deleteMediaByEjercicioId(ejercicio.ID)
     }
     suspend fun deleteMediaByEjercicioId(ejercicioId: Int) {
         mediaDao.deleteMediaByEjercicioId(ejercicioId)

@@ -65,25 +65,25 @@ class RutinasAdapter(
         fun bind(rutina: Rutina, listEjercicios : List<Ejercicio>?) {
             this.rutina = rutina
 
-            tvTitulo.text = "Rutina N°: " + rutina.ID.toString() + " " + rutina.nombre
-            // Filtrar ejercicios por rutinaId
-            val ejerciciosDeRutina = listEjercicios?.filter { it.rutinaId == rutina.ID }
-            // Verificar si alguno de los ejercicios tiene isObjetivo como true
-            val tieneObjetivo = ejerciciosDeRutina?.any { it.isObjetivo || it.Objetivo != null } ?: false
-            val titulo = if (tieneObjetivo) "Tiempo estimado: " else "Tiempo: "
+            tvTitulo.text = "Rutina N°: ${rutina.ID} ${rutina.nombre}"
+            tvFecha.text = "Fecha de creación: ${rutina.fechaCreacion}"
 
-            // Sumar tiempos de DEjercicio y DDescanso
-            val totalTimeInSeconds = ejerciciosDeRutina?.sumOf {
-                convertToSeconds(it.DEjercicio) + convertToSeconds(it.DDescanso)
-            } ?: 0
+            if (listEjercicios.isNullOrEmpty()) {
+                tvDuracionEjer.text = "No hay ejercicios disponibles"
+            } else {
+                val ejerciciosDeRutina = listEjercicios.filter { it.rutinaId == rutina.ID }
+                val tieneObjetivo = ejerciciosDeRutina.any { it.isObjetivo || it.Objetivo != null }
 
-            // Convertir el tiempo total a MM:SS
-            val totalTimeFormatted = String.format("%02d:%02d", totalTimeInSeconds / 60, totalTimeInSeconds % 60)
-            val text = "$titulo$totalTimeFormatted"
-            tvDuracionEjer.text = text
+                val totalTimeInSeconds = ejerciciosDeRutina.sumOf {
+                    convertToSeconds(it.DEjercicio) + convertToSeconds(it.DDescanso)
+                }
 
-            tvFecha.text = "Fecha de creacion: "+ rutina.fechaCreacion
+                val totalTimeFormatted = String.format("%02d:%02d", totalTimeInSeconds / 60, totalTimeInSeconds % 60)
+                val titulo = if (tieneObjetivo) "Tiempo estimado: " else "Tiempo: "
+                val text = "$titulo$totalTimeFormatted"
 
+                tvDuracionEjer.text = text
+            }
         }
         fun convertToSeconds(time: String): Int {
             val parts = time.split(":")
