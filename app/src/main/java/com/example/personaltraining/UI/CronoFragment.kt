@@ -14,6 +14,7 @@ import android.widget.ImageButton
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -50,8 +51,10 @@ class CronoFragment : Fragment(), NavigationListener {
     private lateinit var mediaPagerAdapter: MediaPagerAdapter
     private lateinit var viewPager: ViewPager2
 
-
     private var timer: CountDownTimer? = null // Temporizador para el cronómetro
+
+    private var autoScrollHandler: Handler? = null
+    private var autoScrollRunnable: Runnable? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -217,25 +220,34 @@ class CronoFragment : Fragment(), NavigationListener {
     }
 
     private fun startAutoScroll() {
-        val handler = Handler(Looper.getMainLooper())
-        val runnable = object : Runnable {
+        autoScrollHandler = Handler(Looper.getMainLooper())
+        autoScrollRunnable = object : Runnable {
             override fun run() {
-                val itemCount = mediaPagerAdapter.itemCount
-                if (itemCount > 0) {
-                    val currentItem = viewPager.currentItem
-                    val nextItem = (currentItem + 1) % itemCount
-                    viewPager.setCurrentItem(nextItem, true)
+                // Verifica si la vista del fragmento aún está disponible
+                if (view != null) {
+                    val itemCount = mediaPagerAdapter.itemCount
+                    if (itemCount > 0) {
+                        val currentItem = viewPager.currentItem
+                        val nextItem = (currentItem + 1) % itemCount
+                        viewPager.setCurrentItem(nextItem, true)
+                    }
+                    // Programa el siguiente ciclo del autoscroll
+                    autoScrollHandler?.postDelayed(this, 2000) // 1000 ms = 1 second
                 }
-                handler.postDelayed(this, 1000) // 1000 ms = 1 second
             }
         }
-        handler.post(runnable)
+        // Inicia el autoscroll por primera vez
+        autoScrollHandler?.post(autoScrollRunnable!!)
     }
 
+
     override fun onDestroyView() {
-        super.onDestroyView()
+        autoScrollHandler?.removeCallbacks(autoScrollRunnable!!)
+        autoScrollHandler = null
+        autoScrollRunnable = null
         _binding = null
         timer?.cancel() // Detener el temporizador al destruir la vista
+        super.onDestroyView()
     }
 
 }
