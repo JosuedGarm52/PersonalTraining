@@ -1,5 +1,6 @@
 package com.example.personaltraining.UI
 
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -28,6 +29,8 @@ class ResultFragment : Fragment() {
 
     private val args: ResultFragmentArgs by navArgs()
 
+    private var mediaPlayer: MediaPlayer? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -47,6 +50,9 @@ class ResultFragment : Fragment() {
             val action = ResultFragmentDirections.actionResultFragmentToListRecyclerFragment()
             findNavController().navigate(action)
         }
+        // Reproducir sonido cuando se muestra el fragmento
+        mediaPlayer = MediaPlayer.create(requireContext(), R.raw.finish_level_sfx)
+        mediaPlayer?.start()
     }
 
     private fun formatTime(milliseconds: Long): String {
