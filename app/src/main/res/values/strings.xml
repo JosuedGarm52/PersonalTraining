@@ -46,6 +46,6 @@
     <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
     <string name="add_exercise">Add exercise</string>
     <string name="edit_exercise">Edit exercise</string>
-    <string name="preparation">Preparation...</string>
-    <string name="rest">Rest...</string>
+    <string name="preparation_crono">Preparation&#8230;</string>
+    <string name="rest_crono">Rest&#8230;</string>
 </resources>

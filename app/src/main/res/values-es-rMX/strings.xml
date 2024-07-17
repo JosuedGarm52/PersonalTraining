@@ -3,6 +3,6 @@
     <string name="app_name">PersonalTraining</string>
     <string name="add_exercise">Añadir ejercicio</string>
     <string name="edit_exercise">Editar ejercicio</string>
-    <string name="preparation">Preparacion...</string>
-    <string name="rest">Descanso...</string>
+    <string name="preparation_crono">Preparacion&#8230;</string>
+    <string name="rest_crono">Descanso&#8230;</string>
 </resources>

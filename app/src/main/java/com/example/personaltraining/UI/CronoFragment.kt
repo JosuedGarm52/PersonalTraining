@@ -151,7 +151,7 @@ class CronoFragment : Fragment(), NavigationListener {
         // Actualizar el tiempo restante en la UI
         val timeString = viewModel.secondsToMMSS(timeLeft / 1000)
         if (viewModel.isInPreparation()) {
-            binding.tvCronoEstado.text = getString(R.string.preparation)
+            binding.tvCronoEstado.text = getString(R.string.preparation_crono)
             updateBackgroundColor(R.color.orange)
             binding.tvCronoTiempo.text = timeString
         } else if (descanso) {
@@ -167,7 +167,7 @@ class CronoFragment : Fragment(), NavigationListener {
         // Lógica para manejar cambios en el estado de descanso en la UI si es necesario
         descanso = isResting
         if (isResting) {
-            binding.tvCronoEstado.text = getString(R.string.rest)
+            binding.tvCronoEstado.text = getString(R.string.rest_crono)
             updateBackgroundColor(R.color.resting_background)
             showCrono()
         } else {
