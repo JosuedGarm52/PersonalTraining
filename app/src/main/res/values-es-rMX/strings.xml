@@ -5,4 +5,30 @@
     <string name="edit_exercise">Editar ejercicio</string>
     <string name="preparation_crono">Preparacion&#8230;</string>
     <string name="rest_crono">Descanso&#8230;</string>
+    <string name="exercise">Ejercicio</string>
+    <string name="invalid_id">ID no valido</string>
+    <string name="Message_exit_app">¿Estás seguro de que deseas salir de la aplicación?</string>
+    <string name="routine_name_changed">Nombre de la rutina cambiado</string>
+    <string name="routine_not_found">Rutina no encontrada</string>
+    <string name="added_exercise">Ejercicio agregado</string>
+    <string name="you_must_fill_out_all_fields_to_enter_an_exercise">Debes llenar todos los campos para introducir un ejercicio.</string>
+    <string name="estimation_of_the_exercise">Estimación del ejercicio</string>
+    <string name="duration_of_exercise">Duración del ejercicio</string>
+    <string name="select_the_file_type">Selecciona el tipo de archivo</string>
+    <string name="you_must_click_on_the_list_clicking_on_select">Debes pulsar en la lista, pulsando en seleccionar</string>
+    <string name="select">Seleccionar</string>
+    <string name="copy">Copiar</string>
+    <string name="doublex">Double</string>
+    <string name="eliminate">Eliminar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="delete_routine">Eliminar Rutina</string>
+    <string name="this_is_the_last_exercise_in_the_routine_are_you_sure_you_want_to_delete_it_this_will_also_remove_the_routine_and_return_you_to_the_main_page">
+        Este es el último ejercicio en la rutina. ¿Estás seguro de que deseas eliminarlo? Esto también eliminará la rutina y te regresará a la página principal.
+    </string>
+    <string name="yes">Si</string>
+    <string name="no">No</string>
+    <string name="incorrect_format_use_mm_ss">Formato incorrecto. Usa MM:SS</string>
+    <string name="enter_a_number_greater_than_zero">Ingresa un número mayor a cero.</string>
+    <string name="the_field_cannot_be_empty">El campo no puede estar vacío</string>
+    <string name="you_did_not_allow_access_to_the_files">No permitiste el acceso a los archivos.</string>
 </resources>

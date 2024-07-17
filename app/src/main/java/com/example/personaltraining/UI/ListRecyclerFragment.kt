@@ -172,7 +172,7 @@ class ListRecyclerFragment : Fragment() {
 
     private fun showExitConfirmationDialog() {
         AlertDialog.Builder(requireContext())
-            .setMessage("¿Estás seguro de que deseas salir de la aplicación?")
+            .setMessage(getString(R.string.Message_exit_app))
             .setPositiveButton("Sí") { _, _ ->
                 requireActivity().finishAffinity()
             }

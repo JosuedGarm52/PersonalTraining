@@ -120,7 +120,7 @@ class EditEjerFragment : Fragment() {
                 binding.edtNombreRutinaEdit.setText(rutina.nombre)
             } else {
                 // Maneja el caso cuando la rutina no se encuentra, por ejemplo, mostrar un mensaje de error
-                Toast.makeText(requireContext(), "Rutina no encontrada", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.routine_not_found), Toast.LENGTH_SHORT).show()
             }
         }
         viewModel.currentEjercicio.observe(viewLifecycleOwner) { ejercicio ->
@@ -151,9 +151,11 @@ class EditEjerFragment : Fragment() {
                     currentRutina.nombre = newName
                     //Log.d("EditEjerFragment", "Datos de la rutina actualizados: $currentRutina")
                     viewModel.updateRutina(currentRutina)
-                    Toast.makeText(requireContext(), "Nombre de la rutina cambiado", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(),
+                        getString(R.string.routine_name_changed), Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(requireContext(), "Rutina no encontrada", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(),
+                        getString(R.string.routine_not_found), Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -186,9 +188,11 @@ class EditEjerFragment : Fragment() {
                 viewModel.cambiarEjercicioActual(null)
                 changeEnableFieldsEspecif(false)
                 ejercicioSeleccionado = null
-                Toast.makeText(requireContext(), "Ejercicio agregado", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(),
+                    getString(R.string.added_exercise), Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(requireContext(), "Debes llenar todos los campos para introducir un ejercicio", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(),
+                    getString(R.string.you_must_fill_out_all_fields_to_enter_an_exercise), Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -201,19 +205,23 @@ class EditEjerFragment : Fragment() {
             val isChecked = binding.chkRepeticionEdit.isChecked
             binding.chkDurTiempoEdit.isChecked = !isChecked
             binding.edtCantRepEdit.isEnabled = isChecked
-            binding.edtimeDuracionEjercicioEdit.hint = if (isChecked) "Estimacion del ejercicio" else "Duracion del ejercicio"
+            binding.edtimeDuracionEjercicioEdit.hint = if (isChecked)
+                getString(R.string.estimation_of_the_exercise) else
+                getString(R.string.duration_of_exercise)
         }
         binding.chkDurTiempoEdit.setOnClickListener {
             binding.chkRepeticionEdit.isChecked = !binding.chkDurTiempoEdit.isChecked
             binding.edtCantRepEdit.isEnabled = binding.chkRepeticionEdit.isChecked
-            binding.edtimeDuracionEjercicioEdit.hint = if (binding.chkRepeticionEdit.isChecked) "Estimacion del ejercicio" else "Duracion del ejercicio"
+            binding.edtimeDuracionEjercicioEdit.hint = if (binding.chkRepeticionEdit.isChecked)
+                getString(R.string.estimation_of_the_exercise) else
+                getString(R.string.duration_of_exercise)
         }
 
         binding.btnAddImagen.setOnClickListener {
             if (ejercicioSeleccionado != null){
                 val options = arrayOf("Imagen", "GIF", "Video", "Cancel")
                 AlertDialog.Builder(requireContext())
-                    .setTitle("Selecciona el tipo de archivo")
+                    .setTitle(getString(R.string.select_the_file_type))
                     .setItems(options) { _, which ->
                         when (which) {
                             0 -> {
@@ -233,7 +241,8 @@ class EditEjerFragment : Fragment() {
                     }
                     .show()
             }else{
-                Toast.makeText(requireContext(), "Debes pulsar en la lista, pulsando en seleccionar", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(),
+                    getString(R.string.you_must_click_on_the_list_clicking_on_select), Toast.LENGTH_SHORT).show()
             }
 
         }
@@ -243,7 +252,12 @@ class EditEjerFragment : Fragment() {
     private fun showOptionsMenu(ejercicio: Ejercicio) {
         // Mostrar un menú con opciones de copiar, duplicar o eliminar el ejercicio
         AlertDialog.Builder(requireContext())
-            .setItems(arrayOf("Seleccionar","Copiar", "Duplicar", "Eliminar","Cancelar")) { _, which ->
+            .setItems(arrayOf(
+                getString(R.string.select),
+                getString(R.string.copy),
+                getString(R.string.doublex),
+                getString(R.string.eliminate),
+                getString(R.string.cancel))) { _, which ->
                 when (which) {
                     0 -> seleccionarEjercicio(ejercicio)
                     1 -> copyEjercicio(ejercicio)
@@ -343,9 +357,9 @@ class EditEjerFragment : Fragment() {
         if (viewModel.ejercicios.value?.size == 1) {
             // Mostrar un cuadro de diálogo de confirmación
             AlertDialog.Builder(requireContext())
-                .setTitle("Eliminar Rutina")
-                .setMessage("Este es el último ejercicio en la rutina. ¿Estás seguro de que deseas eliminarlo? Esto también eliminará la rutina y te regresará a la página principal.")
-                .setPositiveButton("Sí") { dialog, _ ->
+                .setTitle(getString(R.string.delete_routine))
+                .setMessage(getString(R.string.this_is_the_last_exercise_in_the_routine_are_you_sure_you_want_to_delete_it_this_will_also_remove_the_routine_and_return_you_to_the_main_page))
+                .setPositiveButton(getString(R.string.yes)) { dialog, _ ->
                     // Eliminar la rutina y regresar a la página principal
                     viewModel.deleteRutinaWithExercises(ejercicio.rutinaId)
                     val navOptions = NavOptions.Builder()
@@ -354,7 +368,7 @@ class EditEjerFragment : Fragment() {
                     findNavController().navigate(R.id.action_EditEjerFragment_to_ListRecyclerFragment, null, navOptions)
                     dialog.dismiss()
                 }
-                .setNegativeButton("No") { dialog, _ ->
+                .setNegativeButton(getString(R.string.no)) { dialog, _ ->
                     dialog.dismiss()
                 }
                 .create()
@@ -382,7 +396,7 @@ class EditEjerFragment : Fragment() {
                         editText.error = null
                         negacion = false
                     } else {
-                        editText.error = "Formato incorrecto. Usa MM:SS"
+                        editText.error = getString(R.string.incorrect_format_use_mm_ss)
                         negacion = true
                     }
                 }
@@ -410,11 +424,11 @@ class EditEjerFragment : Fragment() {
                         editText.error = null
                         negacion2 = false
                     } else {
-                        editText.error = "Ingresa un número mayor a cero"
+                        editText.error = getString(R.string.enter_a_number_greater_than_zero)
                         negacion2 = true
                     }
                 } else {
-                    editText.error = "El campo no puede estar vacío"
+                    editText.error = getString(R.string.the_field_cannot_be_empty)
                     negacion2 = true
                 }
             }
@@ -484,7 +498,8 @@ class EditEjerFragment : Fragment() {
                 loadMedia()
             } else {
                 // Permiso denegado, maneja el caso donde no se permite el acceso al almacenamiento
-                Toast.makeText(requireContext(), "No permitiste el acceso a los archivos", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(),
+                    getString(R.string.you_did_not_allow_access_to_the_files), Toast.LENGTH_SHORT).show()
             }
         }
     private fun requestPermissionsIfNeeded() {

@@ -66,7 +66,7 @@ class CronoFragment : Fragment(), NavigationListener {
         // Verificar que args.ID no sea cero
         if (args.ID == 0) {
             Log.e(TAG, "ID no válido")
-            Toast.makeText(requireContext(), "ID no válido", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.invalid_id), Toast.LENGTH_SHORT).show()
             findNavController().popBackStack()
         }
         // Initialize ViewModel and ViewModelFactory
@@ -172,7 +172,7 @@ class CronoFragment : Fragment(), NavigationListener {
             showCrono()
         } else {
             if (!primero) {
-                binding.tvCronoEstado.text = viewModel.currentExercise.value?.Nombre ?: "Ejercicio"
+                binding.tvCronoEstado.text = viewModel.currentExercise.value?.Nombre ?: getString(R.string.exercise)
                 updateBackgroundColor(R.color.exercise_background)
             }
             primero = false
