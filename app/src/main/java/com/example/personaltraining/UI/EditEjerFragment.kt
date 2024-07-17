@@ -270,9 +270,10 @@ class EditEjerFragment : Fragment() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             when (mediaTipo) {
-                MediaTipo.IMAGE, MediaTipo.GIF -> type = "image/*"
+                MediaTipo.IMAGE -> type = "image/*"
+                MediaTipo.GIF -> type = "image/gif"
                 MediaTipo.VIDEO -> type = "video/*"
-                MediaTipo.IMAGE_SEQUENCE ->{}
+                MediaTipo.IMAGE_SEQUENCE -> {} // Aquí podrías definir el comportamiento para IMAGE_SEQUENCE si es necesario.
             }
         }
         startForResult.launch(intent)
@@ -543,7 +544,8 @@ class EditEjerFragment : Fragment() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             when (mediaTipo) {
-                MediaTipo.IMAGE, MediaTipo.GIF -> { type = "image/*" }
+                MediaTipo.IMAGE -> type = "image/*"
+                MediaTipo.GIF -> type = "image/gif"
                 MediaTipo.VIDEO -> { type = "video/*" }
                 MediaTipo.IMAGE_SEQUENCE ->{ }
             }
