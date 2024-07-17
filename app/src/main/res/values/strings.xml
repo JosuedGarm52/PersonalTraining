@@ -1,12 +1,12 @@
 <resources>
-    <string name="app_name">PersonalTraining</string>
+    <string name="app_name" translatable="false">PersonalTraining</string>
     <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">List Recycler Frag</string>
-    <string name="second_fragment_label">Add ejercicio Frag</string>
-    <string name="next">Next</string>
-    <string name="previous">Previous</string>
+    <string name="first_fragment_label" translatable="false">List Recycler Frag</string>
+    <string name="second_fragment_label" translatable="false">Add ejercicio Frag</string>
+    <string name="next" translatable="false">Next</string>
+    <string name="previous" translatable="false">Previous</string>
 
-    <string name="lorem_ipsum">
+    <string name="lorem_ipsum" translatable="false">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris
         volutpat, dolor id interdum ullamcorper, risus dolor egestas lectus, sit amet mattis purus
         dui nec risus. Maecenas non sodales nisi, vel dictum dolor. Class aptent taciti sociosqu ad
@@ -42,6 +42,10 @@
         libero vel nunc consequat, quis tincidunt nisl eleifend. Cras bibendum enim a justo luctus
         vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
     </string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
+    <string name="add_exercise">Add exercise</string>
+    <string name="edit_exercise">Edit exercise</string>
+    <string name="preparation">Preparation...</string>
+    <string name="rest">Rest...</string>
 </resources>

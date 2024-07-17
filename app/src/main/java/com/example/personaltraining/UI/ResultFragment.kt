@@ -2,24 +2,19 @@ package com.example.personaltraining.UI
 
 import android.media.MediaPlayer
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.personaltraining.R
 import com.example.personaltraining.databinding.ResultFragmentBinding
-import com.example.personaltraining.viewModel.NavigationListener
-import com.example.personaltraining.viewModel.ResultViewModel
+import java.util.Locale
 
 
 /**
  * A simple [Fragment] subclass.
- * Use the [ResultFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
 class ResultFragment : Fragment() {
@@ -34,7 +29,7 @@ class ResultFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = ResultFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -58,7 +53,7 @@ class ResultFragment : Fragment() {
     private fun formatTime(milliseconds: Long): String {
         val seconds = (milliseconds / 1000) % 60
         val minutes = (milliseconds / (1000 * 60)) % 60
-        return String.format("%02d:%02d", minutes, seconds)
+        return String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
     }
 
 

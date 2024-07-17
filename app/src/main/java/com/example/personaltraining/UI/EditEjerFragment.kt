@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -22,7 +23,6 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
@@ -30,7 +30,6 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.personaltraining.R
 import com.example.personaltraining.adapter.EditEjerAdapter
-import com.example.personaltraining.adapter.EjercicioAdapterVistaPrevia
 import com.example.personaltraining.adapter.MediaAdapter
 import com.example.personaltraining.appFiles.FileManager
 import com.example.personaltraining.application.RutinasApplication
@@ -47,7 +46,6 @@ import java.util.Locale
 
 /**
  * A simple [Fragment] subclass.
- * Use the [EditEjerFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
 class EditEjerFragment : Fragment() {
@@ -63,7 +61,7 @@ class EditEjerFragment : Fragment() {
     private var negacion = false
     private var negacion2 = false
     private var rutinaID = 0
-    var ultimoFormato : MediaTipo? = null
+    private var ultimoFormato : MediaTipo? = null
     private var ejercicioSeleccionado: Ejercicio? = null
 
     private var _binding: EditEjerFragmentBinding? = null
@@ -82,7 +80,7 @@ class EditEjerFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = EditEjerFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -90,6 +88,8 @@ class EditEjerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Aquí se inicia la solicitud de permisos
+        requestPermissionsIfNeeded()
 
         fileManager = FileManager(requireContext())
 
@@ -146,7 +146,7 @@ class EditEjerFragment : Fragment() {
         binding.btnCambiarNombre.setOnClickListener {
             val newName = binding.edtNombreRutinaEdit.text.toString()
             if (newName.isNotEmpty()) {
-                var currentRutina = viewModel.rutina.value
+                val currentRutina = viewModel.rutina.value
                 if (currentRutina != null) {
                     currentRutina.nombre = newName
                     //Log.d("EditEjerFragment", "Datos de la rutina actualizados: $currentRutina")
@@ -281,9 +281,9 @@ class EditEjerFragment : Fragment() {
 
     // Función para manejar el archivo seleccionado
     private fun handleSelectedFile(uri: Uri) {
-        val ejercicioId = viewModel.currentEjercicio?.value?.ID ?: 0
+        val ejercicioId = viewModel.currentEjercicio.value?.ID ?: 0
         val currentDate = SimpleDateFormat("ddMMyy", Locale.getDefault()).format(Date())
-        var fileName = getFileNameFromUri(uri) ?: "temp_file"
+        val fileName = getFileNameFromUri(uri) ?: "temp_file"
         var customFileName = "foto_${fileName}_${currentDate}_${ejercicioId}"
 
         // Verificar si ya existe un archivo con el mismo nombre
@@ -312,14 +312,14 @@ class EditEjerFragment : Fragment() {
         binding.btnAddImagen.isEnabled = false
         binding.viewPagerMedia.isEnabled = false
         llenarDatos(ejercicio)
-        binding.btnEditarEjercicio.text = "Añadir ejercicio"
+        binding.btnEditarEjercicio.text = getString(R.string.add_exercise)
     }
     private fun seleccionarEjercicio(ejercicio: Ejercicio) {
         viewModel.cambiarEjercicioActual(ejercicio)
         viewModel.loadMediaForCurrentExercise(ejercicio.ID)
         ejercicioSeleccionado = ejercicio
         llenarDatos(ejercicio)
-        binding.btnEditarEjercicio.text = "Editar ejercicio"
+        binding.btnEditarEjercicio.text = getString(R.string.edit_exercise)
     }
 
     private fun duplicateEjercicio(ejercicio: Ejercicio) {
@@ -468,22 +468,45 @@ class EditEjerFragment : Fragment() {
         }
     }
     companion object {
-        private const val REQUEST_CODE_READ_EXTERNAL_STORAGE = 1001
+        const val REQUEST_CODE_READ_EXTERNAL_STORAGE = 1001
+        val PERMISSIONS = arrayOf(
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        )
     }
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUEST_CODE_READ_EXTERNAL_STORAGE) {
-            if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+
+    private val permReqLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            val granted = permissions.entries.all {
+                it.value == true
+            }
+            if (granted) {
                 // Permiso concedido, puedes proceder a cargar los medios
+                loadMedia()
             } else {
                 // Permiso denegado, maneja el caso donde no se permite el acceso al almacenamiento
                 Toast.makeText(requireContext(), "No permitiste el acceso a los archivos", Toast.LENGTH_SHORT).show()
             }
         }
+    private fun requestPermissionsIfNeeded() {
+        activity?.let {
+            if (hasPermissions(activity as Context, PERMISSIONS)) {
+                loadMedia()
+            } else {
+                permReqLauncher.launch(PERMISSIONS)
+            }
+        }
+    }
+
+    // Método para verificar si los permisos ya están concedidos
+    private fun hasPermissions(context: Context, permissions: Array<String>): Boolean {
+        return permissions.all {
+            ActivityCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+        }
+    }
+
+    // Método para cargar los medios
+    private fun loadMedia() {
+        // Implementa la lógica para cargar los medios aquí
     }
     private var mediaReplace : Media? = null
     private fun showMediaOptionsMenu(media: Media) {
@@ -562,9 +585,9 @@ class EditEjerFragment : Fragment() {
     }
     // Función para manejar el archivo seleccionado
     private fun handleSelectedRemplace(uri: Uri) {
-        val ejercicioId = viewModel.currentEjercicio?.value?.ID ?: 0
+        val ejercicioId = viewModel.currentEjercicio.value?.ID ?: 0
         val currentDate = SimpleDateFormat("ddMMyy", Locale.getDefault()).format(Date())
-        var fileName = getFileNameFromUri(uri) ?: "temp_file"
+        val fileName = getFileNameFromUri(uri) ?: "temp_file"
         var customFileName = "foto_${fileName}_${currentDate}_${ejercicioId}"
 
         // Verificar si ya existe un archivo con el mismo nombre

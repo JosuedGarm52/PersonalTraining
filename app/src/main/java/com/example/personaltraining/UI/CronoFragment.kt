@@ -9,12 +9,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -32,7 +29,6 @@ import com.example.personaltraining.viewModel.NavigationListener
 
 /**
  * A simple [Fragment] subclass.
- * Use the [CronoFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
 class CronoFragment : Fragment(), NavigationListener {
@@ -59,7 +55,7 @@ class CronoFragment : Fragment(), NavigationListener {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = CronoFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -155,7 +151,7 @@ class CronoFragment : Fragment(), NavigationListener {
         // Actualizar el tiempo restante en la UI
         val timeString = viewModel.secondsToMMSS(timeLeft / 1000)
         if (viewModel.isInPreparation()) {
-            binding.tvCronoEstado.text = "Preparación..."
+            binding.tvCronoEstado.text = getString(R.string.preparation)
             updateBackgroundColor(R.color.orange)
             binding.tvCronoTiempo.text = timeString
         } else if (descanso) {
@@ -171,7 +167,7 @@ class CronoFragment : Fragment(), NavigationListener {
         // Lógica para manejar cambios en el estado de descanso en la UI si es necesario
         descanso = isResting
         if (isResting) {
-            binding.tvCronoEstado.text = "Descansando..."
+            binding.tvCronoEstado.text = getString(R.string.rest)
             updateBackgroundColor(R.color.resting_background)
             showCrono()
         } else {
