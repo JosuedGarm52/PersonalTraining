@@ -66,12 +66,15 @@ class FileManager(private val context: Context) {
     }
 
     // Función para eliminar un archivo
-    fun deleteFile(filePath: String) {
+    fun deleteFile(filePath: String): Boolean {
         val file = File(filePath)
-        if (file.exists()) {
+        return if (file.exists()) {
             file.delete()
+        } else {
+            false
         }
     }
+
 
     // Función para obtener la ruta completa de un archivo en almacenamiento privado
     fun getFilePath(fileName: String): String {
@@ -82,6 +85,7 @@ class FileManager(private val context: Context) {
         val file = File(mediaDir, fileName)
         return file.exists()
     }
+
 
     // Función para mostrar un diálogo en caso de error al crear el directorio
     private fun showDirectoryCreationErrorDialog() {

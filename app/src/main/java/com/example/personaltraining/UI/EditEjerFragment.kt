@@ -246,7 +246,6 @@ class EditEjerFragment : Fragment() {
             }
 
         }
-
     }
 
     private fun showOptionsMenu(ejercicio: Ejercicio) {

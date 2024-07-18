@@ -3,6 +3,7 @@ package com.example.personaltraining.repository
 import android.util.Log
 import androidx.annotation.WorkerThread
 import androidx.room.Transaction
+import com.example.personaltraining.appFiles.FileManager
 import com.example.personaltraining.model.Ejercicio
 import com.example.personaltraining.model.EjercicioDao
 import com.example.personaltraining.model.Media
@@ -16,7 +17,8 @@ import kotlinx.coroutines.flow.forEach
 class RutinasRepository (
     private val ejercicioDao: EjercicioDao,
     private val rutinaDao: RutinaDao,
-    private val mediaDao: MediaDao
+    private val mediaDao: MediaDao,
+    private val fileManager: FileManager
 ) {
 
     // Inserta la rutina y retorna el ID generado
@@ -38,6 +40,10 @@ class RutinasRepository (
     @WorkerThread
     suspend fun updateRutina(rutina: Rutina) {
         rutinaDao.updateRutina(rutina)
+    }
+    @Transaction
+    suspend fun deleteRutina(rutinaId: Int) {
+        rutinaDao.deleteRutinaById(rutinaId)
     }
 
     fun getAllEjercicios(): Flow<List<Ejercicio>> = ejercicioDao.getAll()
@@ -64,12 +70,6 @@ class RutinasRepository (
     suspend fun updateEjercicio(ejercicio: Ejercicio) {
         ejercicioDao.insert(ejercicio)
     }
-
-    @Transaction
-    suspend fun deleteRutina(rutinaId: Int) {
-        rutinaDao.deleteRutinaById(rutinaId)
-    }
-
 
     suspend fun deleteEjercicioById(ejercicioId: Int) {
         deleteMediaByEjercicioId(ejercicioId)
@@ -105,23 +105,51 @@ class RutinasRepository (
             Log.e("RutinasRepository", "Error deleting rutina and exercises: ${e.message}", e)
         }
     }
-
+    suspend fun getMediaById(mediaId: Long): Media? {
+        return mediaDao.getMediaById(mediaId)
+    }
     suspend fun getMediaForExercise(ejercicioId: Int): List<Media> {
         return mediaDao.getMediaForExercise(ejercicioId)
     }
     suspend fun insertMedia(media: Media): Long {
         return mediaDao.insertMedia(media)
     }
-    suspend fun updateMedia(media: Media) {
+
+    suspend fun updateMedia(media: Media): Boolean {
+        val oldMedia = getMediaById(media.id)
+        val oldFilePath = oldMedia?.let { fileManager.getFilePath(it.ruta) }
+
+        // Actualiza el objeto Media
         mediaDao.updateMedia(media)
+
+        // Verifica si la actualización fue exitosa recuperando el objeto Media nuevamente
+        val updatedMedia = getMediaById(media.id)
+        val updateSuccessful = updatedMedia == media
+
+        if (updateSuccessful) {
+            oldFilePath?.let { fileManager.deleteFile(it) }
+        }
+
+        return updateSuccessful
     }
-    suspend fun deleteMedia(media: Media) {
+
+
+    suspend fun deleteMedia(media: Media): Boolean {
         mediaDao.deleteMedia(media)
+        val filePath = fileManager.getFilePath(media.ruta)
+        return fileManager.deleteFile(filePath)
     }
+
     suspend fun deleteMediaByEjercicioId(ejercicio: Ejercicio) {
-        mediaDao.deleteMediaByEjercicioId(ejercicio.ID)
+        val mediaList = mediaDao.getMediaForExercise(ejercicio.ID)
+        for (media in mediaList) {
+            deleteMedia(media)
+        }
     }
     suspend fun deleteMediaByEjercicioId(ejercicioId: Int) {
-        mediaDao.deleteMediaByEjercicioId(ejercicioId)
+        val mediaList = mediaDao.getMediaForExercise(ejercicioId)
+        for (media in mediaList) {
+            deleteMedia(media)
+        }
     }
 }

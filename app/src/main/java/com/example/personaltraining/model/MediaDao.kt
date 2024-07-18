@@ -23,5 +23,7 @@ interface MediaDao {
     @Query("SELECT * FROM Media WHERE ejercicioId = :ejercicioId")
     suspend fun getMediaForExercise(ejercicioId: Int): List<Media>
 
-    // Otros métodos según tus necesidades (actualización, eliminación, consultas adicionales, etc.)
+    // Método para obtener un Media por su ID
+    @Query("SELECT * FROM Media WHERE id = :mediaId LIMIT 1")
+    suspend fun getMediaById(mediaId: Long): Media?
 }

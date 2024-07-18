@@ -116,25 +116,39 @@ class EditEjerFragmentViewModel(private val rutinasRepository: RutinasRepository
         }
     }
 
-    fun updateMedia(media: Media) {
+    fun updateMedia(media: Media): LiveData<Boolean> {
+        val result = MutableLiveData<Boolean>()
         viewModelScope.launch {
             rutinasRepository.updateMedia(media)
             loadMediaForCurrentExercise(media.ejercicioId)
         }
+        return result
     }
 
-    fun deleteMedia(media: Media) {
+    fun deleteMedia(media: Media): LiveData<Boolean> {
+        val result = MutableLiveData<Boolean>()
         viewModelScope.launch {
-            rutinasRepository.deleteMedia(media)
+            result.postValue(rutinasRepository.deleteMedia(media))
             loadMediaForCurrentExercise(media.ejercicioId)
         }
+        return result
     }
+
     fun deleteMediaWithEjercicioId() {
         viewModelScope.launch {
             val id = _currentEjercicio.value?.ID ?: 0
             rutinasRepository.deleteMediaByEjercicioId(id)
             loadMediaForCurrentExercise(id)
         }
+    }
+
+    fun deleteMediaByEjercicioId(ejercicioId: Int): LiveData<Boolean> {
+        val result = MutableLiveData<Boolean>()
+        viewModelScope.launch {
+            rutinasRepository.deleteMediaByEjercicioId(ejercicioId)
+            result.postValue(true)
+        }
+        return result
     }
 }
 
