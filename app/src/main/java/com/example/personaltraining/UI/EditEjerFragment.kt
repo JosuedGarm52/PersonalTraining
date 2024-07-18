@@ -109,7 +109,7 @@ class EditEjerFragment : Fragment() {
         checkStoragePermissions()
 
         viewModel.mediaList.observe(viewLifecycleOwner) { media ->
-            Log.d(TAG, "Lista de media actualizada: $media")
+            //Log.d(TAG, "Lista de media actualizada: $media")
             mediaAdapter.submitList(media)
         }
 
@@ -186,6 +186,7 @@ class EditEjerFragment : Fragment() {
                 viewModel.cambiarEjercicioActual(null)
                 changeEnableFieldsEspecif(false)
                 ejercicioSeleccionado = null
+                viewModel.getEjerciciosByRutinaId(rutinaID)
                 viewModel.loadMediaForCurrentExercise(null)
                 Toast.makeText(requireContext(),
                     getString(R.string.added_exercise), Toast.LENGTH_SHORT).show()

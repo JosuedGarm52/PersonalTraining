@@ -44,7 +44,7 @@ class EditEjerFragmentViewModel(private val rutinasRepository: RutinasRepository
             //Log.d("EditEjerFragmentViewModel", "Ejercicios obtenidos: $result")
             _rutina.value = result
             if (result == null) {
-                Log.e("EditEjerFragmentViewModel", "Rutina no encontrada")
+                Log.e(TAG, "Rutina no encontrada")
             }
         }
     }
@@ -91,9 +91,9 @@ class EditEjerFragmentViewModel(private val rutinasRepository: RutinasRepository
         viewModelScope.launch(SupervisorJob()) {
             try {
                 rutinasRepository.deleteRutinaWithExercises(rutinaId)
-                Log.d("ListRecyclerFragmentViewModel", "Rutina with id $rutinaId deleted")
+                Log.d(TAG, "Rutina with id $rutinaId deleted")
             } catch (e: Exception) {
-                Log.e("ListRecyclerFragmentViewModel", "Error deleting rutina with id $rutinaId: ${e.message}", e)
+                Log.e(TAG, "Error deleting rutina with id $rutinaId: ${e.message}", e)
             }
         }
     }
