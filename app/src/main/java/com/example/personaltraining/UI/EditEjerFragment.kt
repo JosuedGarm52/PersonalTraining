@@ -167,7 +167,6 @@ class EditEjerFragment : Fragment() {
                 val duracionDescanso = darFormato(binding.edtimeDuracionDescansoEdit.text.toString())
                 val tipo = binding.chkRepeticionEdit.isChecked
                 val objetivo = if (tipo) binding.edtCantRepEdit.text?.toString() else null
-
                 val ejercicio = Ejercicio(
                     ID = ejercicioSeleccionado?.ID ?: 0,
                     Nombre = nombreEjercicio,
@@ -177,8 +176,7 @@ class EditEjerFragment : Fragment() {
                     isObjetivo = tipo,
                     rutinaId = rutinaID
                 )
-
-                if (ejercicioSeleccionado != null) {
+                if (ejercicioSeleccionado != null ) {
                     viewModel.updateEjercicio(ejercicio)
                 } else {
                     viewModel.addEjercicio(ejercicio)
@@ -321,6 +319,8 @@ class EditEjerFragment : Fragment() {
 
     private fun copyEjercicio(ejercicio: Ejercicio) {
         viewModel.cambiarEjercicioActual(null)
+        ejercicioSeleccionado = null
+        viewModel.loadMediaForCurrentExercise(null)
         clearFields()
         changeEnableFieldsEspecif(true)
         binding.btnAddImagen.isEnabled = false
@@ -331,7 +331,7 @@ class EditEjerFragment : Fragment() {
     private fun seleccionarEjercicio(ejercicio: Ejercicio) {
         viewModel.cambiarEjercicioActual(ejercicio)
         viewModel.loadMediaForCurrentExercise(ejercicio.ID)
-        ejercicioSeleccionado = ejercicio
+        ejercicioSeleccionado = ejercicio //variable que indica el ejercicio seleccionado, es aparte del view model current excercise
         llenarDatos(ejercicio)
         binding.btnEditarEjercicio.text = getString(R.string.edit_exercise)
     }

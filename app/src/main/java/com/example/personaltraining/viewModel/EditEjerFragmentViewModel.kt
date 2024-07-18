@@ -57,7 +57,7 @@ class EditEjerFragmentViewModel(private val rutinasRepository: RutinasRepository
     }
     fun addEjercicio(ejercicio: Ejercicio) {
         viewModelScope.launch {
-            rutinasRepository.insertEjercicio(ejercicio)
+            rutinasRepository.soloAdd(ejercicio)
             // Actualiza la lista de ejercicios
             getEjerciciosByRutinaId(ejercicio.rutinaId)
         }
@@ -97,7 +97,11 @@ class EditEjerFragmentViewModel(private val rutinasRepository: RutinasRepository
             }
         }
     }
-    fun loadMediaForCurrentExercise(ejercicioId: Int) {
+    fun loadMediaForCurrentExercise(ejercicioId: Int?) {
+        if (ejercicioId == null) {
+            _mediaList.value = emptyList()
+            return
+        }
         viewModelScope.launch {
             val media = rutinasRepository.getMediaForExercise(ejercicioId)
             //Log.d(TAG, "Media for exercise with id $ejercicioId: $media")
