@@ -186,6 +186,7 @@ class EditEjerFragment : Fragment() {
                 viewModel.cambiarEjercicioActual(null)
                 changeEnableFieldsEspecif(false)
                 ejercicioSeleccionado = null
+                viewModel.loadMediaForCurrentExercise(null)
                 Toast.makeText(requireContext(),
                     getString(R.string.added_exercise), Toast.LENGTH_SHORT).show()
             } else {
@@ -377,6 +378,7 @@ class EditEjerFragment : Fragment() {
             // Eliminar solo el ejercicio
             viewModel.deleteEjercicio(ejercicio)
             viewModel.cambiarEjercicioActual(null)
+            viewModel.loadMediaForCurrentExercise(null)
         }
     }
 
