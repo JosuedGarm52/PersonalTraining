@@ -42,6 +42,15 @@ class CronoFragmentViewModel(
     private val _mediaList = MutableLiveData<List<Media>>(emptyList())
     val mediaList: LiveData<List<Media>> get() = _mediaList
 
+    private val _isMuted = MutableLiveData(false)
+    val isMuted: LiveData<Boolean> = _isMuted
+
+    private val _shouldPlaySound1 = MutableLiveData<Boolean>(false)
+    val shouldPlaySound1: LiveData<Boolean> get() = _shouldPlaySound1
+
+    private val _shouldPlaySound2 = MutableLiveData<Boolean>(false)
+    val shouldPlaySound2: LiveData<Boolean> get() = _shouldPlaySound2
+
     enum class Stage { PREPARATION, EXERCISE, REST }
     private var exerciseIndex = 0
     private var index = 0
@@ -56,6 +65,10 @@ class CronoFragmentViewModel(
     private var startRutina: Long = 0L
     private var elapsedTime: Long = 0L
     private var isTimerRunning = false
+    private var isButtuned = false
+
+    private val _timeHigh = 3000L
+    private val _timeLow = 1000L
 
     private var sound1: MediaPlayer? = null
     private var sound2: MediaPlayer? = null
@@ -108,8 +121,8 @@ class CronoFragmentViewModel(
                     cancel()
                 } else {
                     _timeLeft.value = millisUntilFinished
-                    if (millisUntilFinished <= 3000L || millisUntilFinished == 1000L) {
-                        playSound1()  // Reproduce el sonido 1 cuando quedan 3 o 1 segundos
+                    if (millisUntilFinished <= _timeHigh || millisUntilFinished == _timeLow) {
+                        triggerSound1()  // Reproduce el sonido 1 cuando quedan 3 o 1 segundos
                     }
                 }
             }
@@ -128,13 +141,13 @@ class CronoFragmentViewModel(
         startTimer()
         currentTimer?.cancel()
         preparationDone = true
-        if (exerciseIndex < exerciseList.value?.size ?: 0) {
-            _currentExercise.value = exerciseList.value?.get(exerciseIndex)
+        if (exerciseIndex < _exerciseList.value?.size ?: 0) {
+            _currentExercise.value = _exerciseList.value?.get(exerciseIndex)
             _timeLeft.value = mmssToSeconds(_currentExercise.value?.DEjercicio ?: "00:00")
             _isResting.value = false
             currentStage = Stage.EXERCISE
             cambiarMedia()
-            playSound2() // Reproduce el sonido 2 al comenzar una nueva etapa
+            triggerSound2() // Reproduce el sonido 2 al comenzar una nueva etapa
 
             val isObjetivo = _currentExercise.value?.isObjetivo ?: false
 
@@ -145,8 +158,8 @@ class CronoFragmentViewModel(
                         cancel()
                     } else {
                         _timeLeft.value = millisUntilFinished
-                        if (millisUntilFinished <= 3000L || millisUntilFinished == 1000L) {
-                            playSound1()  // Reproduce el sonido 1 cuando quedan 3 o 1 segundos
+                        if (millisUntilFinished <= _timeHigh || millisUntilFinished == _timeLow) {
+                            triggerSound1()  // Reproduce el sonido 1 cuando quedan 3 o 1 segundos
                         }
                     }
                 }
@@ -171,9 +184,12 @@ class CronoFragmentViewModel(
         _isResting.value = true
         _timeLeft.value = mmssToSeconds(_currentExercise.value?.DDescanso ?: "00:00")
         currentStage = Stage.REST
-        index++
-        cambiarMedia()
-        playSound2() // Reproduce el sonido 2 al comenzar una nueva etapa
+
+        if (!isButtuned) {
+            index++
+            cambiarMedia()
+        }
+        triggerSound2() // Reproduce el sonido 2 al comenzar una nueva etapa
 
         currentTimer = object : CountDownTimer(_timeLeft.value ?: 0L, 1000L) {
             override fun onTick(millisUntilFinished: Long) {
@@ -182,8 +198,8 @@ class CronoFragmentViewModel(
                     cancel()
                 } else {
                     _timeLeft.value = millisUntilFinished
-                    if (millisUntilFinished <= 3000L || millisUntilFinished == 1000L) {
-                        playSound1()  // Reproduce el sonido 1 cuando quedan 3 o 1 segundos
+                    if (millisUntilFinished <= _timeHigh || millisUntilFinished == _timeLow) {
+                        triggerSound1()  // Reproduce el sonido 1 cuando quedan 3 o 1 segundos
                     }
                 }
             }
@@ -204,8 +220,18 @@ class CronoFragmentViewModel(
         currentTimer?.cancel()
         when (currentStage) {
             Stage.PREPARATION -> startExercise()
-            Stage.EXERCISE -> startRest()
+            Stage.EXERCISE -> {
+                if (index < (_exerciseList.value?.size ?: 0) - 1) {
+                    index++
+                    cambiarMedia()
+                    isButtuned = true
+                } else {
+                    // Si está en el último ejercicio, no hacer nada
+                }
+                startRest()
+            }
             Stage.REST -> {
+                isButtuned = false
                 exerciseIndex++
                 startExercise()
             }
@@ -223,12 +249,18 @@ class CronoFragmentViewModel(
                     exerciseIndex--
                     currentStage = Stage.REST
                     startRest() // Vuelve al descanso del ejercicio anterior
+                    isButtuned = false
                 } else {
                     // Si está en el primer ejercicio, no hacer nada
                     startExercise()
                 }
             }
             Stage.REST -> {
+                if (index > 0) {
+                    index --
+                    cambiarMedia()
+                    isButtuned = true
+                }
                 currentStage = Stage.EXERCISE
                 startExercise() // Vuelve al ejercicio actual
             }
@@ -371,13 +403,14 @@ class CronoFragmentViewModel(
         }
     }
     fun getExerciseIdAtIndex(index: Int): Int? {
-        val exercises = exerciseList.value
+        val exercises = _exerciseList.value
         if (exercises != null && index in exercises.indices) {
             return exercises[index].ID
         }
         return null // En caso de índice fuera de rango o lista vacía
     }
     fun cambiarMedia(){
+        Log.d(_TAG, "Cambiando media $index")
         loadMediaForCurrentExercise(getExerciseIdAtIndex(index))
     }
     override fun onCleared() {
@@ -389,16 +422,24 @@ class CronoFragmentViewModel(
         sound2 = null
         super.onCleared()
     }
-    private fun playSound1() {
-        sound1 = MediaPlayer.create(getApplication(), R.raw.short_tin)
-        sound1?.start()
+    fun toggleMute() {
+        _isMuted.value = _isMuted.value?.not()
+    }
+    private fun triggerSound1() {
+        if (_isMuted.value == true) return
+        _shouldPlaySound1.value = true
     }
 
-    private fun playSound2() {
-        sound2 = MediaPlayer.create(getApplication(), R.raw.long_tin)
-        sound2?.start()
+    private fun triggerSound2() {
+        if (_isMuted.value == true) return
+        _shouldPlaySound2.value = true
     }
 
+    // Reset the LiveData triggers after handling them in the Fragment
+    fun resetSoundTriggers() {
+        _shouldPlaySound1.value = false
+        _shouldPlaySound2.value = false
+    }
 }
 
 interface NavigationListener {

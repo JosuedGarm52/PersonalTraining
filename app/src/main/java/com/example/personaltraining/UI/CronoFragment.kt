@@ -1,5 +1,6 @@
 package com.example.personaltraining.UI
 
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Handler
@@ -52,6 +53,8 @@ class CronoFragment : Fragment(), NavigationListener {
     private var autoScrollHandler: Handler? = null
     private var autoScrollRunnable: Runnable? = null
 
+    private var mediaPlayer: MediaPlayer? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -75,6 +78,8 @@ class CronoFragment : Fragment(), NavigationListener {
         viewModelFactory = CronoFragmentViewModelFactory(application, repository, args.ID)
         viewModel = ViewModelProvider(this, viewModelFactory)[CronoFragmentViewModel::class.java]
 
+        setupObservers()
+
         viewPager = binding.viewPagerMedia
         mediaPagerAdapter = MediaPagerAdapter(emptyList())
         viewPager.adapter = mediaPagerAdapter
@@ -88,9 +93,8 @@ class CronoFragment : Fragment(), NavigationListener {
                 }
             }
 
-            // Crea el adaptador con la nueva lista de MediaItem
-            mediaPagerAdapter = MediaPagerAdapter(mediaItems)
-            viewPager.adapter = mediaPagerAdapter
+            // Actualiza la lista en el adaptador existente
+            mediaPagerAdapter.updateMediaItems(mediaItems)
 
             // Inicia el auto-scroll si la lista no está vacía
             if (mediaItems.isNotEmpty()) {
@@ -116,6 +120,19 @@ class CronoFragment : Fragment(), NavigationListener {
         binding.btnMasCinco.setOnClickListener {
             val cincoSegundo : Long = 5
             viewModel.addSecondsToTimer(cincoSegundo)
+        }
+
+        viewModel.isMuted.observe(viewLifecycleOwner) { isMuted ->
+            val imageResource = if (isMuted) {
+                R.drawable.ic_volumen_mute // Imagen para el estado muteado
+            } else {
+                R.drawable.ic_volumen_up // Imagen para el estado no muteado
+            }
+            binding.btnEstadoVolumen.setImageResource(imageResource)
+        }
+
+        binding.btnEstadoVolumen.setOnClickListener {
+            viewModel.toggleMute()
         }
     }
     private fun observeViewModel() {
@@ -206,6 +223,34 @@ class CronoFragment : Fragment(), NavigationListener {
     private fun showReps() {
         binding.layoutCrono.visibility = View.GONE
         binding.layoutReps.visibility = View.VISIBLE
+    }
+
+    private fun setupObservers() {
+        viewModel.shouldPlaySound1.observe(viewLifecycleOwner) { shouldPlay ->
+            if (shouldPlay) {
+                playSound1()
+                viewModel.resetSoundTriggers()
+            }
+        }
+
+        viewModel.shouldPlaySound2.observe(viewLifecycleOwner) { shouldPlay ->
+            if (shouldPlay) {
+                playSound2()
+                viewModel.resetSoundTriggers()
+            }
+        }
+    }
+
+    private fun playSound1() {
+        mediaPlayer?.release()
+        mediaPlayer = MediaPlayer.create(context, R.raw.short_tin)
+        mediaPlayer?.start()
+    }
+
+    private fun playSound2() {
+        mediaPlayer?.release()
+        mediaPlayer = MediaPlayer.create(context, R.raw.long_tin)
+        mediaPlayer?.start()
     }
 
     // Implementación de la interfaz NavigationListener

@@ -143,6 +143,7 @@
         android:background="@drawable/circular1_button_background"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_right_arrow_white"
+        android:contentDescription="descripcion"
         app:layout_constraintBottom_toTopOf="@id/guidelineBottom"
         app:layout_constraintEnd_toStartOf="@id/btnMasCinco"
         app:layout_constraintHorizontal_bias="1.0"
@@ -187,6 +188,16 @@
         android:src="@drawable/ic_pause"
         app:layout_constraintBottom_toTopOf="@id/guidelineBottom"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageButton
+        android:id="@+id/btnEstadoVolumen"
+        android:layout_width="60dp"
+        android:layout_height="54dp"
+        android:layout_marginTop="42dp"
+        android:contentDescription="descripcion"
+        android:src="@drawable/ic_volumen_up"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView6" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

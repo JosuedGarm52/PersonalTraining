@@ -14,7 +14,13 @@ import com.example.personaltraining.model.Media
 import com.example.personaltraining.model.MediaTipo
 import java.io.File
 
-class MediaPagerAdapter(private val mediaItems: List<MediaItem>) : RecyclerView.Adapter<MediaPagerAdapter.MediaViewHolder>() {
+class MediaPagerAdapter(private var mediaItems: List<MediaItem>) : RecyclerView.Adapter<MediaPagerAdapter.MediaViewHolder>() {
+
+    // Actualiza la lista de MediaItems
+    fun updateMediaItems(newMediaItems: List<MediaItem>) {
+        mediaItems = newMediaItems
+        notifyDataSetChanged()
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MediaViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_media, parent, false)
