@@ -37,7 +37,7 @@ class CronoFragmentViewModel(
     val currentExercise: LiveData<Ejercicio> get() = _currentExercise
 
     private val _exerciseList = MutableLiveData<List<Ejercicio>>()
-    val exerciseList: LiveData<List<Ejercicio>> get() = _exerciseList
+    //val exerciseList: LiveData<List<Ejercicio>> get() = _exerciseList
 
     private val _mediaList = MutableLiveData<List<Media>>(emptyList())
     val mediaList: LiveData<List<Media>> get() = _mediaList
@@ -45,15 +45,14 @@ class CronoFragmentViewModel(
     private val _isMuted = MutableLiveData(false)
     val isMuted: LiveData<Boolean> = _isMuted
 
-    private val _shouldPlaySound1 = MutableLiveData<Boolean>(false)
+    private val _shouldPlaySound1 = MutableLiveData(false)
     val shouldPlaySound1: LiveData<Boolean> get() = _shouldPlaySound1
 
-    private val _shouldPlaySound2 = MutableLiveData<Boolean>(false)
+    private val _shouldPlaySound2 = MutableLiveData(false)
     val shouldPlaySound2: LiveData<Boolean> get() = _shouldPlaySound2
 
     enum class Stage { PREPARATION, EXERCISE, REST }
     private var exerciseIndex = 0
-    private var index = 0
     private var preparationDone = false
     private var currentStage = Stage.PREPARATION
     private var currentTimer: CountDownTimer? = null
@@ -65,7 +64,6 @@ class CronoFragmentViewModel(
     private var startRutina: Long = 0L
     private var elapsedTime: Long = 0L
     private var isTimerRunning = false
-    private var isButtuned = false
 
     private val _timeHigh = 3000L
     private val _timeLow = 1000L
@@ -112,7 +110,7 @@ class CronoFragmentViewModel(
         _timeLeft.value = 10L * 1000L // 10 segundos de preparación
         _isResting.value = false
         currentStage = Stage.PREPARATION
-        cambiarMedia()
+        loadMediaForCurrentExercise(getExerciseIdAtIndex(exerciseIndex))
 
         currentTimer = object : CountDownTimer(_timeLeft.value ?: 0L, 1000L) {
             override fun onTick(millisUntilFinished: Long) {
@@ -141,12 +139,13 @@ class CronoFragmentViewModel(
         startTimer()
         currentTimer?.cancel()
         preparationDone = true
-        if (exerciseIndex < _exerciseList.value?.size ?: 0) {
+        if (exerciseIndex < (_exerciseList.value?.size ?: 0)) {
             _currentExercise.value = _exerciseList.value?.get(exerciseIndex)
             _timeLeft.value = mmssToSeconds(_currentExercise.value?.DEjercicio ?: "00:00")
             _isResting.value = false
             currentStage = Stage.EXERCISE
-            cambiarMedia()
+
+            loadMediaForCurrentExercise(getExerciseIdAtIndex(exerciseIndex))
             triggerSound2() // Reproduce el sonido 2 al comenzar una nueva etapa
 
             val isObjetivo = _currentExercise.value?.isObjetivo ?: false
@@ -185,10 +184,7 @@ class CronoFragmentViewModel(
         _timeLeft.value = mmssToSeconds(_currentExercise.value?.DDescanso ?: "00:00")
         currentStage = Stage.REST
 
-        if (!isButtuned) {
-            index++
-            cambiarMedia()
-        }
+        loadMediaForCurrentExercise(getExerciseIdAtIndex(exerciseIndex+1))
         triggerSound2() // Reproduce el sonido 2 al comenzar una nueva etapa
 
         currentTimer = object : CountDownTimer(_timeLeft.value ?: 0L, 1000L) {
@@ -221,17 +217,9 @@ class CronoFragmentViewModel(
         when (currentStage) {
             Stage.PREPARATION -> startExercise()
             Stage.EXERCISE -> {
-                if (index < (_exerciseList.value?.size ?: 0) - 1) {
-                    index++
-                    cambiarMedia()
-                    isButtuned = true
-                } else {
-                    // Si está en el último ejercicio, no hacer nada
-                }
                 startRest()
             }
             Stage.REST -> {
-                isButtuned = false
                 exerciseIndex++
                 startExercise()
             }
@@ -249,18 +237,12 @@ class CronoFragmentViewModel(
                     exerciseIndex--
                     currentStage = Stage.REST
                     startRest() // Vuelve al descanso del ejercicio anterior
-                    isButtuned = false
                 } else {
                     // Si está en el primer ejercicio, no hacer nada
                     startExercise()
                 }
             }
             Stage.REST -> {
-                if (index > 0) {
-                    index --
-                    cambiarMedia()
-                    isButtuned = true
-                }
                 currentStage = Stage.EXERCISE
                 startExercise() // Vuelve al ejercicio actual
             }
@@ -334,7 +316,7 @@ class CronoFragmentViewModel(
     }
 
 
-    fun mmssToSeconds(timeMMSS: String): Long {
+    private fun mmssToSeconds(timeMMSS: String): Long {
         val parts = timeMMSS.split(":")
         if (parts.size != 2) {
             throw IllegalArgumentException("Invalid time format: $timeMMSS")
@@ -351,7 +333,7 @@ class CronoFragmentViewModel(
     }
 
     // Función para iniciar el temporizador
-    fun startTimer() {
+    private fun startTimer() {
         if (!isTimerRunning) {
             startTime = System.currentTimeMillis()
             isTimerRunning = true
@@ -359,7 +341,7 @@ class CronoFragmentViewModel(
     }
 
     // Función para detener el temporizador
-    fun stopTimer() {
+    private fun stopTimer() {
         if (isTimerRunning) {
             val endTime = System.currentTimeMillis()
             elapsedTime += endTime - startTime
@@ -368,7 +350,7 @@ class CronoFragmentViewModel(
     }
 
     // Función para obtener el tiempo transcurrido formateado
-    fun getElapsedTimeFormatted(): String {
+    private fun getElapsedTimeFormatted(): String {
         val seconds = elapsedTime / 1000
         val minutes = seconds / 60
         val remainderSeconds = seconds % 60
@@ -376,7 +358,7 @@ class CronoFragmentViewModel(
     }
 
     // Función para reiniciar el temporizador
-    fun resetTimer() {
+    private fun resetTimer() {
         elapsedTime = 0L
         isTimerRunning = false
     }
@@ -392,7 +374,7 @@ class CronoFragmentViewModel(
         navigationListener = listener
     }
 
-    fun loadMediaForCurrentExercise(ejercicioId: Int?) {
+    private fun loadMediaForCurrentExercise(ejercicioId: Int?) {
         viewModelScope.launch {
             if (ejercicioId == null) {
                 _mediaList.postValue(emptyList())
@@ -402,16 +384,12 @@ class CronoFragmentViewModel(
             }
         }
     }
-    fun getExerciseIdAtIndex(index: Int): Int? {
+    private fun getExerciseIdAtIndex(index: Int): Int? {
         val exercises = _exerciseList.value
         if (exercises != null && index in exercises.indices) {
             return exercises[index].ID
         }
         return null // En caso de índice fuera de rango o lista vacía
-    }
-    fun cambiarMedia(){
-        Log.d(_TAG, "Cambiando media $index")
-        loadMediaForCurrentExercise(getExerciseIdAtIndex(index))
     }
     override fun onCleared() {
         stopTimer()
