@@ -2,7 +2,6 @@ package com.example.personaltraining.viewModel
 
 import android.media.MediaPlayer
 import android.os.CountDownTimer
-import android.app.Application
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -21,10 +20,9 @@ import com.example.personaltraining.UI.CronoFragmentDirections
 import com.example.personaltraining.model.Media
 
 class CronoFragmentViewModel(
-    application: Application,
     private val rutinasRepository: RutinasRepository,
     private val rutinaId: Int
-) : AndroidViewModel(application) {
+) : ViewModel() {
 
     private val _TAG = "CronoFragmentViewModel"
     private val _timeLeft = MutableLiveData<Long>()
@@ -41,6 +39,9 @@ class CronoFragmentViewModel(
 
     private val _mediaList = MutableLiveData<List<Media>>(emptyList())
     val mediaList: LiveData<List<Media>> get() = _mediaList
+
+    private val _navigateToResult = MutableLiveData<Long>()
+    val navigateToResult: LiveData<Long> = _navigateToResult
 
     private val _isMuted = MutableLiveData(false)
     val isMuted: LiveData<Boolean> = _isMuted
@@ -173,7 +174,7 @@ class CronoFragmentViewModel(
             }
         } else {
             val elapsedTimeInMillis = System.currentTimeMillis() - (startRutina + 1)
-            navigationListener?.navigateToResultFragment(elapsedTimeInMillis)
+            _navigateToResult.value = elapsedTimeInMillis
         }
     }
 
@@ -368,10 +369,9 @@ class CronoFragmentViewModel(
         return elapsedTime
     }
 
-    private var navigationListener: NavigationListener? = null
-
-    fun setNavigationListener(listener: NavigationListener) {
-        navigationListener = listener
+    fun finishExercise() {
+        val elapsedTimeInMillis = System.currentTimeMillis() - (startRutina + 1)
+        _navigateToResult.value = elapsedTimeInMillis
     }
 
     private fun loadMediaForCurrentExercise(ejercicioId: Int?) {
@@ -420,19 +420,15 @@ class CronoFragmentViewModel(
     }
 }
 
-interface NavigationListener {
-    fun navigateToResultFragment(elapsedTimeInMillis: Long)
-}
 
 class CronoFragmentViewModelFactory(
-    private val application: Application,
     private val rutinasRepository: RutinasRepository,
     private val rutinaID: Int
         ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(CronoFragmentViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return CronoFragmentViewModel(application,rutinasRepository, rutinaID) as T
+            return CronoFragmentViewModel(rutinasRepository, rutinaID) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
